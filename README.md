@@ -2,11 +2,11 @@
 这是个推官方支持的 Unity3D 插件（Android & iOS）。更多详情请访问个推官网：[http://docs.getui.com/](http://docs.getui.com/)。
 # 1. 添加插件
 
-1. 确保使用 unity 打开需要集成本插件的 unity3d 工程
+1. 确保使用 Unity 打开需要集成本插件的 Unity3D 工程
 
 2. 运行插件目录下的 GTPushUnityPlugin_vX.X.X.unitypackage
 
-插件将会自动添加到 unity3d 工程中，完成插件的添加。
+插件将会自动添加到 Unity3D 工程中，完成插件的添加。
 
 ## 2. 挂载脚本
 在 Unity 游戏场景中，新建一个空的 Gameobject，将其名称修改为 GTPushBinding，挂载 GTPushBinding.cs。
@@ -19,13 +19,13 @@
 
 - 将 `Assets/plugins/Android/AndroidManifest.xml`里对应的`PUSH_APPID`,`PUSH_APPKEY`,`AUSH_APPSECRET`的值替换成在个推控制台应用配置中获得的对应值。
 
-- 如果其他插件已经存在AndroidManifest.xml文件，请自行进行配置合并。
+- 如果其他插件已经存在 AndroidManifest.xml 文件，请自行进行配置合并。
 
-- 如果您还未配置您的游戏的`Bundle Idenifier`, 在Unity中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在 *Identification* 选项下的 *Bundle Idenifier* 里设置应用的包名。
+- 如果您还未配置您的游戏的`Bundle Idenifier`, 在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在 *Identification* 选项下的 *Bundle Idenifier* 里设置应用的包名。
 
-- 如果您还未设置您的游戏的Icon，在Unity中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
+- 如果您还未设置您的游戏的 Icon，在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
 
-- 如果您需要运行该插件的示例代码，请将插件目录下的`example/GTPluginsDemo.cs`复制到您的游戏工程目录下的Assets目录下，在Unity中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
+- 如果您需要运行该插件的示例代码，请将插件目录下的`example/GTPluginsDemo.cs`复制到您的游戏工程目录下的Assets目录下，在 Unity 中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
 
 - 如果您需要立即在您自己的游戏中使用插件，请删除`Assets/plugins/Android/AndroidManifest.xml`中标志有`  <!-- For test only. 测试的主程序 -->`的Activity注册代码。
 
