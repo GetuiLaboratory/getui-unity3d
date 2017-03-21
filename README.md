@@ -125,7 +125,7 @@ Unity3D 有时候会默认添加以下几个 framework，视具体版本而定�
 	public void onReceiveMessage(string message){
 		Debug.Log ("GeTuiSdkDidReceivePayloadData message : " + message);
 
-		//将传过来的字符串字典转换为 Dictionary
+		//将传过来的字符串字典转换为 Dictionary，个推已实现该工具方法，可直接使用！
 		Dictionary<string, string> dicMsg;
 		GTPushBinding.ParseMsg (message,out dicMsg);
 		Debug.Log (" payload : "+dicMsg["payload"]);
@@ -145,4 +145,4 @@ GTPushBinding.initPush (this.gameObject.name));
 GTPushBinding.turnOnPush();
 ```
 
-更多 API 详情请参考 GTPushBinding.cs 相同方法名的方法说明，以及在 GetuiPushDemo.cs 中的相关使用示例。
+更多 API 详情请参考 [GTPushBinding.cs](https://github.com/GetuiLaboratory/getui-unity3d/blob/master/Plugins/GTPushBinding.cs) 相同方法名的方法说明，以及在 [GetuiPushDemo.cs](https://github.com/GetuiLaboratory/getui-unity3d/blob/master/Example/GetuiPushDemo.cs) 中的相关使用示例。
