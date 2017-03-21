@@ -71,11 +71,8 @@ void Update () {
 添加必要的框架。
 
 * libc++.tbd
-*
 * libz.tbd
-*
 * libsqlite3.tbd
-*
 * UserNotifications.framework
 
 > 注意：UserNotifications.framework 必须使用 optional 选项，如没有勾选改选项，iOS9 以下机型会因为没有这个库而闪退
