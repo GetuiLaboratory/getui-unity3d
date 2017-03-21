@@ -1,1 +1,149 @@
-# getui-unity3d
+# Getui-Unity3D-Plugin
+这是个推官方支持的 Unity3D 插件（Android & iOS）。更多详情请访问个推官网：[http://docs.getui.com/](http://docs.getui.com/)。
+#1. 添加插件
+
+1. 确保使用 unity 打开需要集成本插件的 unity3d 工程
+
+2. 运行插件目录下的 GTPushUnityPlugin_vX.X.X.unitypackage
+
+插件将会自动添加到 unity3d 工程中，完成插件的添加。
+
+##2. 挂载脚本
+在 Unity 游戏场景中，新建一个空的 Gameobject，将其名称修改为 GTPushBinding，挂载 GTPushBinding.cs。
+
+### demo 脚本的挂载
+在 Unity 游戏场景中，新建一个空的 `Gameobject`，挂载 `GetuiPushDemo.cs`（或者直接挂载到 `Main Camera`），然后根据项目需要对 `GetuiPushDemo.cs` 中的个推推送功能进行定制，其中有某些参数需要到个推官网注册生成并引用。（[个推开发者平台](https://dev.getui.com/dos4.0/index.html#login)）
+
+##3. Android 插件使用
+- 替换 `Assets/plugins/Android/AndroidManifest.xml`里的包名。
+
+- 将 `Assets/plugins/Android/AndroidManifest.xml`里对应的`PUSH_APPID`,`PUSH_APPKEY`,`AUSH_APPSECRET`的值替换成在个推控制台应用配置中获得的对应值。
+
+- 如果其他插件已经存在AndroidManifest.xml文件，请自行进行配置合并。
+
+- 如果您还未配置您的游戏的`Bundle Idenifier`, 在Unity中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在 *Identification* 选项下的 *Bundle Idenifier* 里设置应用的包名。
+
+- 如果您还未设置您的游戏的Icon，在Unity中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
+
+- 如果您需要运行该插件的示例代码，请将插件目录下的`example/GTPluginsDemo.cs`复制到您的游戏工程目录下的Assets目录下，在Unity中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
+
+- 如果您需要立即在您自己的游戏中使用插件，请删除`Assets/plugins/Android/AndroidManifest.xml`中标志有`  <!-- For test only. 测试的主程序 -->`的Activity注册代码。
+
+##4. iOS 插件使用
+
+1、以下几个参数需要在个推开发者平台创建应用后获取并替换。
+
+```
+const string appId = "tHrR9RAVKK9npDDGK7tHp6";
+const string appKey = "CyiCeSdnJB6N0O0hvziYe8";
+const string appSecret = "HGuR9YU1Cq7BUXGXBhbLf7";
+```
+
+```
+//iOS 启用流程
+//启动 SDK
+GetuiPush.StartSDK (appId,appKey,appSecret);
+//设置消息回调监听对象，设置为自身，默认为 Main Camera
+GetuiPush.setListenerGameObject (this.gameObject.name);
+//注册推送通知
+GetuiPush.registerUserNotification ();
+```
+```
+//在 update() 方法中获取到系统注册的 deviceToken
+void Update () {
+		#if UNITY_IPHONE
+		if (!tokenSent) {
+			byte[] token = NotificationServices.deviceToken;
+			if (token != null) {
+				// send token to a provider
+				string deviceToken = System.BitConverter.ToString(token).Replace("-","");
+				// 在个推插件中注册 deviceToken，完成个推注册
+				GTPushBinding.registerDeviceToken (deviceToken);
+			}
+		}
+		#endif
+	}
+```
+更多细节请参考 demo
+
+2、生成 iOS 工程，并打开该工程。
+
+添加必要的框架。
+
+* libc++.tbd
+*
+* libz.tbd
+*
+* libsqlite3.tbd
+*
+* UserNotifications.framework
+
+> 注意：UserNotifications.framework 必须使用 optional 选项，如没有勾选改选项，iOS9 以下机型会因为没有这个库而闪退
+
+Unity3D 有时候会默认添加以下几个 framework，视具体版本而定，如没有需手动添加：
+
+* Security.framework
+* MobileCoreServices.framework
+* SystemConfiguration.framework
+* CoreTelephony.framework
+* AVFoundation.framework
+* CoreLocation.framework
+
+3、在 Xcode 8.x 以上，必须开启Push Notification能力。找到应用Target设置中的Capabilities -> Push Notifications，确认开关已经设为ON状态。如果没有开启该开关，在 Xcode 8.x 上编译后的应用将获取不到DeviceToken：
+![](http://docs.getui.com/mobile/ios/img/xcode_capability.png)
+为了更好支持消息推送，SDK可定期抓取离线消息，提高消息到达率，需要配置后台运行权限：
+
+![](http://docs.getui.com/mobile/ios/img/xcode_background.png)
+4、iOS 推送证书配置请参考：[创建 APNs 推送证书](http://docs.getui.com/mobile/ios/apns/)
+
+#API 使用说明
+> 由于 iOS & Android 注册推送的流程不一样，因此注册流程所暴露的 API 不一致。此外，iOS 有更多的回调接口，也需要注意区别使用。
+
+###iOS & Android
+
+```
+/**
+ *  SDK登入成功返回clientId
+ *
+ *  @param clientId 标识用户的clientId
+ *  说明:启动GeTuiSdk后，SDK会自动向个推服务器注册SDK，当成功注册时，SDK通知应用注册成功。
+ *  注意: 注册成功仅表示推送通道建立，如果appid/appkey/appSecret等验证不通过，依然无法接收到推送消息，请确保验证信息正确。
+ */
+	public void onReceiveClientId(string message){
+		GTPushBinding.setPushMode (true);
+		Debug.Log ("GeTuiSdkDidRegisterClient message : " + message);
+	}
+
+	/**
+ *  SDK通知收到个推推送的透传消息
+ *
+ *  @param payloadData 推送消息内容
+ *  @param taskId      推送消息的任务id
+ *  @param msgId       推送消息的messageid
+ *  @param offLine     是否是离线消息，YES.是离线消息
+ *  @param appId       应用的appId
+ */
+	public void onReceiveMessage(string message){
+		Debug.Log ("GeTuiSdkDidReceivePayloadData message : " + message);
+
+		//将传过来的字符串字典转换为 Dictionary
+		Dictionary<string, string> dicMsg;
+		GTPushBinding.ParseMsg (message,out dicMsg);
+		Debug.Log (" payload : "+dicMsg["payload"]);
+	}
+```
+
+###iOS API
+```
+GTPushBinding.StartSDK (appId,appKey,appSecret);
+GTPushBinding.setListenerGameObject (this.gameObject.name);
+GTPushBinding.registerUserNotification ();
+```
+
+###Android API
+```
+GTPushBinding.initPush (this.gameObject.name));
+GTPushBinding.turnOnPush();
+```
+
+更多 API 详情请参考 GTPushBinding.cs 相同方法名的方法说明，以及在 GetuiPushDemo.cs 中的相关使用示例。
