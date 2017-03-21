@@ -2,7 +2,6 @@ package com.getui.getuiunity;
 
 import android.content.Context;
 
-import com.igexin.sdk.GTIntentService;
 import com.igexin.sdk.PushManager;
 import com.igexin.sdk.Tag;
 import com.unity3d.player.UnityPlayer;
@@ -12,7 +11,7 @@ import com.unity3d.player.UnityPlayer;
  */
 
 public class GTPushBridge {
-  
+
     private static GTPushBridge  pushBridge = new GTPushBridge();
 
     public static String GAMA_OBJECT = "Main Camera";
@@ -31,6 +30,9 @@ public class GTPushBridge {
     }
 
     public void setPushMode(boolean turnOn){
+        if (turnOn == PushManager.getInstance().isPushTurnedOn(mContext)){
+            return;
+        }
         if (turnOn){
             PushManager.getInstance().turnOnPush(mContext);
         }
@@ -52,11 +54,15 @@ public class GTPushBridge {
     }
 
     public void turnOnPush(){
-        PushManager.getInstance().turnOnPush(mContext);
+        if (!PushManager.getInstance().isPushTurnedOn(mContext)){
+            PushManager.getInstance().turnOnPush(mContext);
+        }
     }
 
     public void turnOffPush(){
-        PushManager.getInstance().turnOffPush(mContext);
+        if (PushManager.getInstance().isPushTurnedOn(mContext)){
+            PushManager.getInstance().turnOffPush(mContext);
+        }
     }
 
     public int setTag(String tagNames){

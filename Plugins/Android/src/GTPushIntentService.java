@@ -8,6 +8,10 @@ import com.igexin.sdk.message.GTCmdMessage;
 import com.igexin.sdk.message.GTTransmitMessage;
 import com.unity3d.player.UnityPlayer;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
 /**
  * Created by zhourh on 2017/3/17.
  * 继承 GTIntentService 接收来自个推的消息, 所有消息在线程中回调, 如果注册了该服务, 则务必要在 AndroidManifest中声明, 否则无法接受消息<br>
@@ -28,12 +32,16 @@ public class GTPushIntentService extends GTIntentService {
 
     @Override
     public void onReceiveMessageData(Context context, GTTransmitMessage msg) {
-        StringBuilder message = new StringBuilder("");
-        message.append("type=payload");
-        message.append("&taskId=" + msg.getTaskId());
-        message.append("&msgId=" + msg.getMessageId());
-        message.append("&payload=" + new String(msg.getPayload()));
-        UnityPlayer.UnitySendMessage(GTPushBridge.GAMA_OBJECT, "onReceiveMessage", message.toString());
+        try{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", "payload");
+            jsonObject.put("taskId", msg.getTaskId());
+            jsonObject.put("msgId", msg.getMessageId());
+            jsonObject.put("payload", new String(msg.getPayload()));
+            UnityPlayer.UnitySendMessage(GTPushBridge.GAMA_OBJECT, "onReceiveMessage", jsonObject.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
