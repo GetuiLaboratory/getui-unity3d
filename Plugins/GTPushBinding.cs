@@ -29,6 +29,13 @@ namespace GTPush
 		}
 
 		/**
+		* 设置推送模式
+		*/
+		public static  void setPushMode (bool turnOn){
+			_plugin.Call ("setPushMode", turnOn);
+		}
+
+		/**
 		* 获取个推SDK版本号
 		*/
 		public static string getVersion ()
@@ -106,6 +113,26 @@ namespace GTPush
 		}
 
 
+		/**
+		*  设置渠道
+		*  备注：Android不支持此功能，此处为空实现
+		*  @param aChannelId 渠道值，可以为空值
+		*/
+		public static void setChannelId (string aChannelId)
+		{
+			//Empty
+		}
+
+		/*
+		* 备注：Android不支持此功能，此处为空实现
+		*/
+		public static  void destroy (){
+			//Empty
+		}
+
+		public static  void resume (){
+			 _plugin.Call ("turnOnPush");
+		}
 
 
 
@@ -327,24 +354,6 @@ namespace GTPush
 				return false;
 		}
 		#endif
-		/*
-		* tool 方法，将接收的消息转换为 Dictionary
-		*
-		* <param name="msg">Message.</param>
-		* <param name="dicMsg">Dic message.</param>
-		*/
-
-		public static void ParseMsg(string msg, out Dictionary<string, string> dicMsg){
-			if( null == msg || 0 == msg.Length ){
-				dicMsg = null;
-				return;
-			}
-			dicMsg = new Dictionary<string, string>();
-			string[] msgArray = msg.Split('&');
-			for( int i=0; i<msgArray.Length; i++){
-				string[] elementArray = msgArray[i].Split('=');
-				dicMsg.Add(elementArray[0],elementArray[1]);
-			}
-		}
+	
 	}
 }

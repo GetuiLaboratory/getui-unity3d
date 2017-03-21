@@ -23,7 +23,7 @@
     <uses-permission android:name="getui.permission.GetuiService.您的包名" />
 
     <permission
-        android:name="getui.permission.GetuiService.com.getui.demo"
+        android:name="getui.permission.GetuiService.您的包名"
         android:protectionLevel="normal" >
     </permission>
 

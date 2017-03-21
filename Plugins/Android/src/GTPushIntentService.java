@@ -1,7 +1,7 @@
 package com.getui.getuiunity;
 
 import android.content.Context;
-import android.util.Log;
+
 
 import com.igexin.sdk.GTIntentService;
 import com.igexin.sdk.message.GTCmdMessage;
@@ -28,7 +28,12 @@ public class GTPushIntentService extends GTIntentService {
 
     @Override
     public void onReceiveMessageData(Context context, GTTransmitMessage msg) {
-        UnityPlayer.UnitySendMessage(GTPushBridge.GAMA_OBJECT, "onReceiveMessage", new String(msg.getPayload()));
+        StringBuilder message = new StringBuilder("");
+        message.append("type=payload");
+        message.append("&taskId=" + msg.getTaskId());
+        message.append("&msgId=" + msg.getMessageId());
+        message.append("&payload=" + new String(msg.getPayload()));
+        UnityPlayer.UnitySendMessage(GTPushBridge.GAMA_OBJECT, "onReceiveMessage", message.toString());
     }
 
     @Override

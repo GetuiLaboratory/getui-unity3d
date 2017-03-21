@@ -12,9 +12,7 @@ import com.unity3d.player.UnityPlayer;
  */
 
 public class GTPushBridge {
-
-    private static final String TAG = "GTPushBridge";
-
+  
     private static GTPushBridge  pushBridge = new GTPushBridge();
 
     public static String GAMA_OBJECT = "Main Camera";
@@ -30,6 +28,15 @@ public class GTPushBridge {
         mContext = UnityPlayer.currentActivity.getApplicationContext();
         PushManager.getInstance().initialize(mContext, GTPushService.class);
         PushManager.getInstance().registerPushIntentService(mContext, GTPushIntentService.class);
+    }
+
+    public void setPushMode(boolean turnOn){
+        if (turnOn){
+            PushManager.getInstance().turnOnPush(mContext);
+        }
+        else{
+            PushManager.getInstance().turnOffPush(mContext);
+        }
     }
 
     public String getVersion(){

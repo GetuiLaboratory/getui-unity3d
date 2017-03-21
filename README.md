@@ -1,4 +1,4 @@
-# Getui-Unity3D-Plugin
+# Getui-Unity3D
 这是个推官方支持的 Unity3D 插件（Android & iOS）。更多详情请访问个推官网：[http://docs.getui.com/](http://docs.getui.com/)。
 ## 1. 添加插件
 
@@ -15,9 +15,9 @@
 在 Unity 游戏场景中，新建一个空的 `Gameobject`，挂载 `GetuiPushDemo.cs`（或者直接挂载到 `Main Camera`），然后根据项目需要对 `GetuiPushDemo.cs` 中的个推推送功能进行定制，其中有某些参数需要到个推官网注册生成并引用。（[个推开发者平台](https://dev.getui.com/dos4.0/index.html#login)）
 
 ## 3. Android 插件使用
-- 替换 `Assets/plugins/Android/AndroidManifest.xml`里的包名。
+- 替换 `Assets/Plugins/Android/AndroidManifest.xml`里的包名。
 
-- 将 `Assets/plugins/Android/AndroidManifest.xml`里对应的`PUSH_APPID`,`PUSH_APPKEY`,`AUSH_APPSECRET`的值替换成在个推控制台应用配置中获得的对应值。
+- 将 `Assets/Plugins/Android/AndroidManifest.xml`里对应的`PUSH_APPID`,`PUSH_APPKEY`,`AUSH_APPSECRET`的值替换成在个推控制台应用配置中获得的对应值。
 
 - 如果其他插件已经存在 AndroidManifest.xml 文件，请自行进行配置合并。
 
@@ -25,9 +25,11 @@
 
 - 如果您还未设置您的游戏的 Icon，在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
 
-- 如果您需要运行该插件的示例代码，请将插件目录下的`example/GTPluginsDemo.cs`复制到您的游戏工程目录下的Assets目录下，在 Unity 中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
+- 如果您需要运行该插件的示例代码，在 Unity 中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
 
-- 如果您需要立即在您自己的游戏中使用插件，请删除`Assets/plugins/Android/AndroidManifest.xml`中标志有`  <!-- For test only. 测试的主程序 -->`的Activity注册代码。
+- 如果您需要立即在您自己的游戏中使用插件，请删除`Assets/Plugins/Android/AndroidManifest.xml`中标志有`  <!-- For test only. 测试的主程序 -->`的Activity注册代码。
+
+- 在`Assets/Plugins/Android/res/drawable-xxxx/`替换push.png(该图片为通知栏通知的图标)
 
 ## 4. iOS 插件使用
 
@@ -116,19 +118,14 @@ Unity3D 有时候会默认添加以下几个 framework，视具体版本而定�
 	/**
  *  SDK通知收到个推推送的透传消息
  *
- *  @param payloadData 推送消息内容
+ *  @param payload 推送消息内容
  *  @param taskId      推送消息的任务id
  *  @param msgId       推送消息的messageid
- *  @param offLine     是否是离线消息，YES.是离线消息
- *  @param appId       应用的appId
+ *  @param offLine     是否是离线消息，YES.是离线消息 （Android无此字段）
+ *  @param appId       应用的appId (Android无此字段)
  */
 	public void onReceiveMessage(string message){
 		Debug.Log ("GeTuiSdkDidReceivePayloadData message : " + message);
-
-		//将传过来的字符串字典转换为 Dictionary，个推已实现该工具方法，可直接使用！
-		Dictionary<string, string> dicMsg;
-		GTPushBinding.ParseMsg (message,out dicMsg);
-		Debug.Log (" payload : "+dicMsg["payload"]);
 	}
 ```
 

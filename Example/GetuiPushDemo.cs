@@ -5,8 +5,10 @@ using System.Runtime.InteropServices;
 
 using GTPush;
 
+#if UNITY_IPHONE
 using NotificationServices = UnityEngine.iOS.NotificationServices;
 using NotificationType = UnityEngine.iOS.NotificationType;
+#endif
 
 //别名action类型
 public struct  BindAliasActionType
@@ -29,14 +31,18 @@ public class GetuiPushDemo : MonoBehaviour {
 		GTPushBinding.StartSDK (appId,appKey,appSecret);
 		GTPushBinding.setListenerGameObject (this.gameObject.name);
 		GTPushBinding.registerUserNotification ();
+
 		#endif
 
 		#if UNITY_ANDROID
-		GTPushBinding.initPush (this.gameObject.name));
-		GTPushBinding.turnOnPush();
+		GTPushBinding.initPush (this.gameObject.name);
 		#endif
 
+		#if (UNITY_IPHONE || UNITY_ANDROID)
+
 		Debug.Log ("isPushTurnOn is : " + GTPushBinding.isPushTurnOn());
+
+		#endif
 	}
 
 	// Update is called once per frame
@@ -67,11 +73,12 @@ public class GetuiPushDemo : MonoBehaviour {
  *  注意: 注册成功仅表示推送通道建立，如果appid/appkey/appSecret等验证不通过，依然无法接收到推送消息，请确保验证信息正确。
  */
 	public void onReceiveClientId(string message){
-		GTPushBinding.setPushMode (true);
-		bool isSuccess = GTPushBinding.setTag ("ge,tui");
 		Debug.Log ("GeTuiSdkDidRegisterClient message : " + message);
+		#if (UNITY_IPHONE || UNITY_ANDROID)
+		GTPushBinding.setTag ("ge,tui");
 		GTPushBinding.bindAlias ("getui");
 		GTPushBinding.unBindAlias ("getui");
+		#endif
 	}
 
 	/**
@@ -85,11 +92,6 @@ public class GetuiPushDemo : MonoBehaviour {
  */
 	public void onReceiveMessage(string message){
 		Debug.Log ("GeTuiSdkDidReceivePayloadData message : " + message);
-
-		//将传过来的字符串字典转换为 Dictionary，个推插件实现了该工具类可直接使用！
-		Dictionary<string, string> dicMsg;
-		GTPushBinding.ParseMsg (message,out dicMsg);
-		Debug.Log (" payload : "+dicMsg["payload"]);
 	}
 
 	#if UNITY_IPHONE
