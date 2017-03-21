@@ -6,20 +6,20 @@
 //  Copyright © 2016年 dzq. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "GeTuiSdk.h"
+#import <Foundation/Foundation.h>
 
 #if defined(__cplusplus)
-extern "C"{
+extern "C" {
 #endif
-    extern void UnitySendMessage(const char  *, const char  *, const char  *);
+extern void UnitySendMessage(const char *, const char *, const char *);
 #if defined(__cplusplus)
 }
 #endif
 
-@interface GetuiForUnity : NSObject<GeTuiSdkDelegate>
+@interface GetuiForUnity : NSObject <GeTuiSdkDelegate>
 
-+ (void)sendU3dMessage:(NSString *)messageName param:(NSDictionary *)dict;
--(void)setListenerGameObject:(NSString *)GameObjectName;
-+(void)registerUserNotification;
++ (void)sendU3dMessage:(NSString *)messageName param:(id)dict;
+- (void)setListenerGameObject:(NSString *)GameObjectName;
++ (void)registerUserNotification;
 @end

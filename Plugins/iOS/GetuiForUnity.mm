@@ -13,21 +13,12 @@ static NSString *gameObjectName = nil;
 
 //message tools
 
-+ (void)sendU3dMessage:(NSString *)messageName param:(NSDictionary *)dict
-{
++ (void)sendU3dMessage:(NSString *)messageName param:(id)dict {
     NSString *param = @"";
-    if ( nil != dict ) {
-        for (NSString *key in dict)
-        {
-            if ([param length] == 0)
-            {
-                param = [param stringByAppendingFormat:@"%@=%@", key, [dict valueForKey:key]];
-            }
-            else
-            {
-                param = [param stringByAppendingFormat:@"&%@=%@", key, [dict valueForKey:key]];
-            }
-        }
+    if ([dict isKindOfClass:[NSDictionary class]]) {
+        param = [self DataTOjsonString:dict];
+    } else {
+        param = dict;
     }
     if (!gameObjectName) {
         gameObjectName = @"Main Camera";
@@ -35,48 +26,59 @@ static NSString *gameObjectName = nil;
     UnitySendMessage([gameObjectName UTF8String], [messageName UTF8String], [param UTF8String]);
 }
 
++ (NSString *)DataTOjsonString:(id)object {
+    NSString *jsonString = nil;
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object
+                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                         error:&error];
+    if (!jsonData) {
+        NSLog(@"Got an error: %@", error);
+    } else {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    return jsonString;
+}
+
 #pragma mark - Getui Delegate
 
--(void)GeTuiSdkDidRegisterClient:(NSString *)clientId{
-    [GetuiForUnity sendU3dMessage:@"onReceiveClientId" param:@{@"clientId":clientId}];
+- (void)GeTuiSdkDidRegisterClient:(NSString *)clientId {
+    [GetuiForUnity sendU3dMessage:@"onReceiveClientId" param:clientId];
 }
--(void)GeTuiSdkDidReceivePayloadData:(NSData *)payloadData andTaskId:(NSString *)taskId andMsgId:(NSString *)msgId andOffLine:(BOOL)offLine fromGtAppId:(NSString *)appId{
+- (void)GeTuiSdkDidReceivePayloadData:(NSData *)payloadData andTaskId:(NSString *)taskId andMsgId:(NSString *)msgId andOffLine:(BOOL)offLine fromGtAppId:(NSString *)appId {
     // [4]: 收到个推消息
     NSString *payloadMsg = nil;
     if (payloadData) {
         payloadMsg = [[NSString alloc] initWithData:payloadData encoding:NSUTF8StringEncoding];
     }
     NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
-                         @"payload",@"type",
-                         taskId, @"taskId",
-                         msgId, @"messageId",
-                         payloadMsg, @"payload", nil];
+                                          @"payload", @"type",
+                                          taskId, @"taskId",
+                                          msgId, @"messageId",
+                                          payloadMsg, @"payload", nil];
     [GetuiForUnity sendU3dMessage:@"onReceiveMessage" param:ret];
 }
 
-- (void)GeTuiSdkDidOccurError:(NSError *)error{
+- (void)GeTuiSdkDidOccurError:(NSError *)error {
 
-    [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidOccurError" param:@{@"error":error}];
+    [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidOccurError" param:[NSString stringWithFormat:@"%@", error]];
 }
 
-- (void)GeTuiSdkDidSetPushMode:(BOOL)isModeOff error:(NSError *)error{
-    NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
-                         !isModeOff ? @"true":@"false",@"isModeOn",
-                         error, @"error", nil];
-    [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidSetPushMode" param:ret];
+- (void)GeTuiSdkDidSetPushMode:(BOOL)isModeOff error:(NSError *)error {
+    [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidSetPushMode" param:!isModeOff ? @"true" : @"false"];
 }
 
-- (void)GeTuiSDkDidNotifySdkState:(SdkStatus)aStatus{
-    [GetuiForUnity sendU3dMessage:@"GeTuiSDkDidNotifySdkState" param:@{@"aStatus":[NSNumber numberWithInt:aStatus]}];
+- (void)GeTuiSDkDidNotifySdkState:(SdkStatus)aStatus {
+    [GetuiForUnity sendU3dMessage:@"GeTuiSDkDidNotifySdkState" param:[NSString stringWithFormat:@"%d", aStatus]];
 }
 
-- (void)GeTuiSdkDidAliasAction:(NSString *)action result:(BOOL)isSuccess sequenceNum:(NSString *)aSn error:(NSError *)aError{
+- (void)GeTuiSdkDidAliasAction:(NSString *)action result:(BOOL)isSuccess sequenceNum:(NSString *)aSn error:(NSError *)aError {
 
     NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
-                         action,@"action",
-                         isSuccess?@"true":@"false", @"result",
-                         aSn, @"sequenceNum",
-                         aError, @"error", nil];
+                                          action, @"action",
+                                          isSuccess ? @"true" : @"false", @"result",
+                                          aSn, @"sequenceNum",
+                                          aError, @"error", nil];
 
     [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidAliasAction" param:ret];
 }
@@ -87,11 +89,11 @@ static NSString *gameObjectName = nil;
  *
  *  @param GameObjectName GameObject 名称
  */
--(void)setListenerGameObject:(NSString *)GameObjectName{
+- (void)setListenerGameObject:(NSString *)GameObjectName {
     gameObjectName = GameObjectName;
 }
 /** 注册用户通知 */
-+(void)registerUserNotification {
++ (void)registerUserNotification {
 
     /*
      注册通知(推送)
@@ -121,24 +123,22 @@ static NSString *gameObjectName = nil;
 }
 @end
 
-static GetuiForUnity* delegateObject = nil;
+static GetuiForUnity *delegateObject = nil;
 
 // Converts C style string to NSString
-NSString* GTCreateNSString (const char* string)
-{
+NSString *GTCreateNSString(const char *string) {
     if (string)
-        return [NSString stringWithUTF8String: string];
+        return [NSString stringWithUTF8String:string];
     else
-        return [NSString stringWithUTF8String: ""];
+        return [NSString stringWithUTF8String:""];
 }
 
 // Helper method to create C string copy
-char* GTMakeStringCopy (const char* string)
-{
+char *GTMakeStringCopy(const char *string) {
     if (string == NULL)
         return NULL;
 
-    char* res = (char*)malloc(strlen(string) + 1);
+    char *res = (char *) malloc(strlen(string) + 1);
     strcpy(res, string);
     return res;
 }
@@ -148,70 +148,62 @@ char* GTMakeStringCopy (const char* string)
 
 // By default mono string marshaler creates .Net string for returned UTF-8 C string
 // and calls free for returned value, thus returned strings should be allocated on heap
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 extern "C" {
 #endif
-    void _StartSDK (const char* appId, const char* appKey,const char* appSecret)
-    {
-        if (delegateObject == nil)
-            delegateObject = [[GetuiForUnity alloc] init];
+void _StartSDK(const char *appId, const char *appKey, const char *appSecret) {
+    if (delegateObject == nil)
+        delegateObject = [[GetuiForUnity alloc] init];
 
-        [GeTuiSdk startSdkWithAppId:GTCreateNSString(appId) appKey:GTCreateNSString(appKey) appSecret:GTCreateNSString(appSecret) delegate:delegateObject];
-    }
-    void _registerUserNotification(){
-        [GetuiForUnity registerUserNotification];
-    }
-    void _setListenerGameObject(const char* gameObjectName){
-        if (delegateObject == nil)
-            delegateObject = [[GetuiForUnity alloc] init];
-        [delegateObject setListenerGameObject:GTCreateNSString(gameObjectName)];
-    }
+    [GeTuiSdk startSdkWithAppId:GTCreateNSString(appId) appKey:GTCreateNSString(appKey) appSecret:GTCreateNSString(appSecret) delegate:delegateObject];
+}
+void _registerUserNotification() {
+    [GetuiForUnity registerUserNotification];
+}
+void _setListenerGameObject(const char *gameObjectName) {
+    if (delegateObject == nil)
+        delegateObject = [[GetuiForUnity alloc] init];
+    [delegateObject setListenerGameObject:GTCreateNSString(gameObjectName)];
+}
 
-    void _registerDeviceToken (const char* token)
-    {
-        NSString *deviceToken = GTCreateNSString(token);
-        [GeTuiSdk registerDeviceToken:deviceToken];
-    }
+void _registerDeviceToken(const char *token) {
+    NSString *deviceToken = GTCreateNSString(token);
+    [GeTuiSdk registerDeviceToken:deviceToken];
+}
 
-    const char* _clientId(const char* alias)
-    {
-        return GTMakeStringCopy([[GeTuiSdk clientId]UTF8String]);
-    }
+const char *_clientId(const char *alias) {
+    return GTMakeStringCopy([[GeTuiSdk clientId] UTF8String]);
+}
 
-    void _destroy ()
-    {
-        [GeTuiSdk destroy];
-    }
-    void _resume ()
-    {
-        [GeTuiSdk resume];
-    }
-    void _bindAlias(const char* alias,const char* aSn)
-    {
-        [GeTuiSdk bindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn)];
-    }
-    const int _status(){
-        return [GeTuiSdk status];
-    }
-    void _unBindAlias(const char* alias,const char* aSn)
-    {
-        [GeTuiSdk unbindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn)];
-    }
-    const char* _version ()
-    {
-        return GTMakeStringCopy([[GeTuiSdk version]UTF8String ]);
-    }
-    const bool _setTag(const char* tags){
-        NSArray *tagsArray = [GTCreateNSString(tags) componentsSeparatedByString:@","];
-        return [GeTuiSdk setTags:tagsArray];
-    }
-    void _setPushMode(const bool isValue){
-        [GeTuiSdk setPushModeForOff:!isValue];
-    }
-    void _runBackgroundEnable(const bool isEnable){
-        [GeTuiSdk runBackgroundEnable:isEnable];
-    }
-    /**
+void _destroy() {
+    [GeTuiSdk destroy];
+}
+void _resume() {
+    [GeTuiSdk resume];
+}
+void _bindAlias(const char *alias, const char *aSn) {
+    [GeTuiSdk bindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn)];
+}
+const int _status() {
+    return [GeTuiSdk status];
+}
+void _unBindAlias(const char *alias, const char *aSn) {
+    [GeTuiSdk unbindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn)];
+}
+const char *_version() {
+    return GTMakeStringCopy([[GeTuiSdk version] UTF8String]);
+}
+const bool _setTag(const char *tags) {
+    NSArray *tagsArray = [GTCreateNSString(tags) componentsSeparatedByString:@","];
+    return [GeTuiSdk setTags:tagsArray];
+}
+void _setPushMode(const bool isValue) {
+    [GeTuiSdk setPushModeForOff:!isValue];
+}
+void _runBackgroundEnable(const bool isEnable) {
+    [GeTuiSdk runBackgroundEnable:isEnable];
+}
+/**
      *  设置渠道
      *  备注：SDK可以未启动就调用该方法
      *
@@ -219,10 +211,10 @@ extern "C" {
      *
      *  @param aChannelId 渠道值，可以为空值
      */
-    void _setChannelId(const char* aChannelId){
-        [GeTuiSdk setChannelId:GTCreateNSString(aChannelId)];
-    }
+void _setChannelId(const char *aChannelId) {
+    [GeTuiSdk setChannelId:GTCreateNSString(aChannelId)];
+}
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 }
 #endif

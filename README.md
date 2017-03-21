@@ -110,9 +110,9 @@ Unity3D 有时候会默认添加以下几个 framework，视具体版本而定�
  *  说明:启动GeTuiSdk后，SDK会自动向个推服务器注册SDK，当成功注册时，SDK通知应用注册成功。
  *  注意: 注册成功仅表示推送通道建立，如果appid/appkey/appSecret等验证不通过，依然无法接收到推送消息，请确保验证信息正确。
  */
-	public void onReceiveClientId(string message){
+	public void onReceiveClientId(string clientId){
 		GTPushBinding.setPushMode (true);
-		Debug.Log ("GeTuiSdkDidRegisterClient message : " + message);
+		Debug.Log ("GeTuiSdkDidRegisterClient clientId : " + clientId);
 	}
 
 	/**
@@ -124,8 +124,8 @@ Unity3D 有时候会默认添加以下几个 framework，视具体版本而定�
  *  @param offLine     是否是离线消息，YES.是离线消息 （Android无此字段）
  *  @param appId       应用的appId (Android无此字段)
  */
-	public void onReceiveMessage(string message){
-		Debug.Log ("GeTuiSdkDidReceivePayloadData message : " + message);
+	public void onReceiveMessage(string payloadJsonData){
+		Debug.Log ("GeTuiSdkDidReceivePayloadData payload JsonData : " + payloadJsonData);
 	}
 ```
 

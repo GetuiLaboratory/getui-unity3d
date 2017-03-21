@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -55,7 +55,7 @@ public class GetuiPushDemo : MonoBehaviour {
 				tokenSent = true;
 				string deviceToken = System.BitConverter.ToString(token).Replace("-","");
 				GTPushBinding.registerDeviceToken (deviceToken);
-				Debug.Log ("hexToken is : " + deviceToken +  " cid is : "+GTPushBinding.getClientId() + " versio is : " + GTPushBinding.getVersion());
+				Debug.Log ("hexToken is : " + deviceToken +  " cid is : "+GTPushBinding.getClientId() + " version is : " + GTPushBinding.getVersion());
 			}
 		}
 		#endif
@@ -72,8 +72,8 @@ public class GetuiPushDemo : MonoBehaviour {
  *  说明:启动GeTuiSdk后，SDK会自动向个推服务器注册SDK，当成功注册时，SDK通知应用注册成功。
  *  注意: 注册成功仅表示推送通道建立，如果appid/appkey/appSecret等验证不通过，依然无法接收到推送消息，请确保验证信息正确。
  */
-	public void onReceiveClientId(string message){
-		Debug.Log ("GeTuiSdkDidRegisterClient message : " + message);
+	public void onReceiveClientId(string clientId){
+		Debug.Log ("GeTuiSdkDidRegisterClient clientId : " + clientId);
 		#if (UNITY_IPHONE || UNITY_ANDROID)
 		GTPushBinding.setTag ("ge,tui");
 		GTPushBinding.bindAlias ("getui");
@@ -90,27 +90,26 @@ public class GetuiPushDemo : MonoBehaviour {
  *  @param offLine     是否是离线消息，YES.是离线消息
  *  @param appId       应用的appId
  */
-	public void onReceiveMessage(string message){
-		Debug.Log ("GeTuiSdkDidReceivePayloadData message : " + message);
+	public void onReceiveMessage(string payloadJsonData){
+		Debug.Log ("GeTuiSdkDidReceivePayloadData payload JsonData : " + payloadJsonData);
 	}
 
 	#if UNITY_IPHONE
 	/**
  *  SDK设置关闭推送模式回调
  *
- *  @param isModeOn 关闭模式，true.服务器开启推送功能 false.服务器关闭推送功能
- *  @param error     错误回调，返回设置时的错误信息
+ *  @param isModeOn true：开启 false：关闭
  */
-	public void GeTuiSdkDidSetPushMode(string message){
-		Debug.Log ("GeTuiSdkDidSetPushMode message : " + message);
+	public void GeTuiSdkDidSetPushMode(string isModeOn){
+		Debug.Log ("GeTuiSdkDidSetPushMode isModeOn : " + isModeOn);
 	}
 	/**
  *  SDK遇到错误消息返回error
  *
  *  @param error SDK内部发生错误，通知第三方，返回错误
  */
-	public void GeTuiSdkDidOccurError(string message){
-		Debug.Log ("GeTuiSdkDidOccurError message : " + message);
+	public void GeTuiSdkDidOccurError(string error){
+		Debug.Log ("GeTuiSdkDidOccurError error : " + error);
 	}
 
 	/**
@@ -118,8 +117,8 @@ public class GetuiPushDemo : MonoBehaviour {
 	 *
 	 *  @param message 返回SDK运行状态
 	 */
-	public void GeTuiSDkDidNotifySdkState(string message){
-		Debug.Log ("GeTuiSDkDidNotifySdkState message : " + message);
+	public void GeTuiSDkDidNotifySdkState(string state){
+		Debug.Log ("GeTuiSDkDidNotifySdkState state : " + state);
 	}
 
 	/**
@@ -133,24 +132,6 @@ public class GetuiPushDemo : MonoBehaviour {
 
 	public void GeTuiSdkDidAliasAction(string message){
 		Debug.Log ("GeTuiSdkDidAliasAction message : " + message);
-		Dictionary<string, string> dicMsg;
-		GTPushBinding.ParseMsg (message,out dicMsg);
-		Debug.Log (" action : "+dicMsg["action"]);
-		string action = dicMsg ["action"];
-		string result = dicMsg ["result"];
-		bool isSuccess = System.Convert.ToBoolean (result);
-		if (BindAliasActionType.kGtResponseBindType == action) {
-
-			Debug.Log("绑定结果 sn: "+dicMsg["sequenceNum"]+" reslut: "+isSuccess);
-			if (!isSuccess) {
-				Debug.Log(@"失败原因: "+dicMsg["error"]);
-			}
-		} else if (BindAliasActionType.kGtResponseUnBindType == action) {
-			Debug.Log("解绑结果 sn: "+dicMsg["sequenceNum"]+" reslut: "+isSuccess);
-			if (!isSuccess) {
-				Debug.Log(@"失败原因: "+dicMsg["error"]);
-			}
-		}
 	}
 	#endif
 }
