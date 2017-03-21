@@ -1,6 +1,6 @@
 # Getui-Unity3D-Plugin
 这是个推官方支持的 Unity3D 插件（Android & iOS）。更多详情请访问个推官网：[http://docs.getui.com/](http://docs.getui.com/)。
-# 1. 添加插件
+## 1. 添加插件
 
 1. 确保使用 Unity 打开需要集成本插件的 Unity3D 工程
 
