@@ -100,13 +100,13 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
 
         <service
-            android:name=".GTPushService"
+            android:name="com.getui.getuiunity.GTPushService"
             android:exported="true"
             android:label="PushService"
             android:process=":pushservice">
         </service>
 
-        <service android:name=".GTPushIntentService"/>
+        <service android:name="com.getui.getuiunity.GTPushIntentService"/>
 
         <!-- 个推SDK配置结束 -->
 
