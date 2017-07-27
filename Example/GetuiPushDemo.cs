@@ -39,7 +39,7 @@ public class GetuiPushDemo : MonoBehaviour {
 		#endif
 
 		#if (UNITY_IPHONE || UNITY_ANDROID)
-
+		Debug.Log ("getui sdk version is : " + GTPushBinding.getVersion());
 		Debug.Log ("isPushTurnOn is : " + GTPushBinding.isPushTurnOn());
 
 		#endif
