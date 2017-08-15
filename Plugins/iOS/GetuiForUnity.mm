@@ -188,7 +188,7 @@ const int _status() {
     return [GeTuiSdk status];
 }
 void _unBindAlias(const char *alias, const char *aSn) {
-    [GeTuiSdk unbindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn)];
+    [GeTuiSdk unbindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn) andIsSelf:YES];
 }
 const char *_version() {
     return GTMakeStringCopy([[GeTuiSdk version] UTF8String]);
