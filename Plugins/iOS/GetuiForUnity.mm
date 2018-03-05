@@ -121,6 +121,37 @@ static NSString *gameObjectName = nil;
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
     }
 }
+
+#pragma mark - VOIP related
+
+// 实现 PKPushRegistryDelegate 协议方法
+
+/** 系统返回VOIPToken，并提交个推服务器 */
+
+- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type {
+    NSString *voiptoken = [credentials.token.description stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    voiptoken = [voiptoken stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSLog(@"\n>>>[VoIP Token]:%@\n\n",voiptoken);
+    //向个推服务器注册 VoipToken
+    [GeTuiSdk registerVoipToken:voiptoken];
+}
+
+/** 接收VOIP推送中的payload进行业务逻辑处理（一般在这里调起本地通知实现连续响铃、接收视频呼叫请求等操作），并执行个推VOIP回执统计 */
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(NSString *)type {
+    //个推VOIP回执统计
+    [GeTuiSdk handleVoipNotification:payload.dictionaryPayload];
+    
+    //TODO:接受 VoIP 推送中的 payload 内容进行具体业务逻辑处理
+    NSLog(@"[VoIP Payload]:%@,%@", payload, payload.dictionaryPayload);
+    
+    NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
+                         [NSNumber numberWithInteger:1], @"result",
+                         @"voipPayload", @"type",
+                         payload.dictionaryPayload[@"payload"], @"payload",
+                         payload.dictionaryPayload[@"_gmid_"], @"gmid",  nil];
+    [GetuiForUnity sendU3dMessage:@"onReceiveVoIPMessage" param:ret];
+}
+
 @end
 
 static GetuiForUnity *delegateObject = nil;
@@ -214,7 +245,17 @@ void _runBackgroundEnable(const bool isEnable) {
 void _setChannelId(const char *aChannelId) {
     [GeTuiSdk setChannelId:GTCreateNSString(aChannelId)];
 }
+    
+void _voipRegistration() {
+    dispatch_queue_t mainQueue = dispatch_get_main_queue();
+    PKPushRegistry *voipRegistry = [[PKPushRegistry alloc] initWithQueue:mainQueue];
+    voipRegistry.delegate = delegateObject;
+    // Set the push type to VoIP
+    voipRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
+}
 
 #if defined(__cplusplus)
 }
 #endif
+
+

@@ -134,7 +134,9 @@ namespace GTPush
 			 _plugin.Call ("turnOnPush");
 		}
 
-
+		public static  void voipRegistration (){
+			//Empty
+		}
 
 		#endif
 
@@ -183,6 +185,9 @@ namespace GTPush
 
 		[DllImport ("__Internal")]
 		private static extern void _setPushMode (bool isValue);
+
+		[DllImport ("__Internal")]
+		private static extern void _voipRegistration ();
 
 		/*************************************************************************************/
 		/* Public interface for use inside C# / JS code */
@@ -352,6 +357,13 @@ namespace GTPush
 				return _setTag (tags);
 			} else
 				return false;
+		}
+
+		public static  void voipRegistration (){
+			// Call plugin only when running on real device
+			if (Application.platform != RuntimePlatform.OSXEditor){
+				_voipRegistration();
+			}
 		}
 		#endif
 	

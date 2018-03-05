@@ -8,6 +8,7 @@
 
 #import "GeTuiSdk.h"
 #import <Foundation/Foundation.h>
+#import <PushKit/PushKit.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -17,7 +18,7 @@ extern void UnitySendMessage(const char *, const char *, const char *);
 }
 #endif
 
-@interface GetuiForUnity : NSObject <GeTuiSdkDelegate>
+@interface GetuiForUnity : NSObject <GeTuiSdkDelegate,PKPushRegistryDelegate>
 
 + (void)sendU3dMessage:(NSString *)messageName param:(id)dict;
 - (void)setListenerGameObject:(NSString *)GameObjectName;

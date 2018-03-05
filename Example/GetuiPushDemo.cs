@@ -31,7 +31,8 @@ public class GetuiPushDemo : MonoBehaviour {
 		GTPushBinding.StartSDK (appId,appKey,appSecret);
 		GTPushBinding.setListenerGameObject (this.gameObject.name);
 		GTPushBinding.registerUserNotification ();
-
+		// 注册 VoIP 通知
+		GTPushBinding.voipRegistration();
 		#endif
 
 		#if UNITY_ANDROID
@@ -55,7 +56,7 @@ public class GetuiPushDemo : MonoBehaviour {
 				tokenSent = true;
 				string deviceToken = System.BitConverter.ToString(token).Replace("-","");
 				GTPushBinding.registerDeviceToken (deviceToken);
-				Debug.Log ("hexToken is : " + deviceToken +  " cid is : "+GTPushBinding.getClientId() + " version is : " + GTPushBinding.getVersion());
+				Debug.Log ("deviceToken is : " + deviceToken +  " cid is : "+GTPushBinding.getClientId() + " version is : " + GTPushBinding.getVersion());
 			}
 		}
 		#endif
@@ -132,6 +133,11 @@ public class GetuiPushDemo : MonoBehaviour {
 
 	public void GeTuiSdkDidAliasAction(string message){
 		Debug.Log ("GeTuiSdkDidAliasAction message : " + message);
+	}
+
+	// VoIP 推送消息回调
+	public void onReceiveVoIPMessage(string message){
+		Debug.Log ("onReceiveVoIPMessage message : " + message);
 	}
 	#endif
 }
