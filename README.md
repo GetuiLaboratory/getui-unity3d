@@ -148,18 +148,19 @@ GTPushBinding.voipRegistration();
 
 ````
 	/**
- *  SDK设置关闭推送模式回调
- *
- *  @param isModeOn true：开启 false：关闭
- */
+	 *  SDK设置关闭推送模式回调
+	 *
+	 *  @param isModeOn true：开启 false：关闭
+	 */
 	public void GeTuiSdkDidSetPushMode(string isModeOn){
 		Debug.Log ("GeTuiSdkDidSetPushMode isModeOn : " + isModeOn);
 	}
+	
 	/**
- *  SDK遇到错误消息返回error
- *
- *  @param error SDK内部发生错误，通知第三方，返回错误
- */
+	 *  SDK遇到错误消息返回error
+	 *
+	 *  @param error SDK内部发生错误，通知第三方，返回错误
+	 */
 	public void GeTuiSdkDidOccurError(string error){
 		Debug.Log ("GeTuiSdkDidOccurError error : " + error);
 	}
@@ -181,12 +182,14 @@ GTPushBinding.voipRegistration();
 	 *  @param sequenceNum          返回请求的序列码
 	 *  @param error       成功返回nil, 错误返回相应error信息
 	 */
-
 	public void GeTuiSdkDidAliasAction(string message){
 		Debug.Log ("GeTuiSdkDidAliasAction message : " + message);
 	}
 
-	// VoIP 推送消息回调
+	/** 
+	 *
+	 *	 VoIP 推送消息回调
+	 */
 	public void onReceiveVoIPMessage(string message){
 		Debug.Log ("onReceiveVoIPMessage message : " + message);
 	}
