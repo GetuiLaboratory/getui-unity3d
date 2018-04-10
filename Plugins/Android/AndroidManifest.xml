@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="您的包名">
+    package="com.getui.getuiunity">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -20,10 +20,10 @@
     <!-- 浮动通知权限 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <!-- 自定义权限 -->
-    <uses-permission android:name="getui.permission.GetuiService.您的包名" />
+    <uses-permission android:name="getui.permission.GetuiService.com.getui.pushdemo" />
 
     <permission
-        android:name="getui.permission.GetuiService.您的包名"
+        android:name="getui.permission.GetuiService.com.getui.getuiunity"
         android:protectionLevel="normal" >
     </permission>
 
@@ -34,13 +34,13 @@
         <!-- 配置的第三方参数属性 -->
         <meta-data
             android:name="PUSH_APPID"
-            android:value="您的APPID" />
+            android:value="IbmKW6ssr99lveCtPMG9dA" />
         <meta-data
             android:name="PUSH_APPKEY"
-            android:value="您的APPKEY" />
+            android:value="RhhDAohWe16Ejdgmw7roB1" />
         <meta-data
             android:name="PUSH_APPSECRET"
-            android:value="您的APPSECRET" />
+            android:value="ytJMQpWxEQ7HhnFMHcjZV2" />
 
         <!-- 配置SDK核心服务 -->
         <service

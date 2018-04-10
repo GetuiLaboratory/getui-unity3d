@@ -1,13 +1,12 @@
 package com.getui.getuiunity;
 
 import android.content.Context;
-
 import com.igexin.sdk.PushManager;
 import com.igexin.sdk.Tag;
 import com.unity3d.player.UnityPlayer;
 
 /**
- * Created by zhourh on 2017/3/20.
+ * Created by wanghaobo on 2018/3/20.
  */
 
 public class GTPushBridge {
@@ -90,9 +89,6 @@ public class GTPushBridge {
     public boolean unBindAlias(String alias){
         return PushManager.getInstance().unBindAlias(mContext, alias, true);
     }
-
-
-
 
 
 

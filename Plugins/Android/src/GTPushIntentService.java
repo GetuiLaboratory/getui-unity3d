@@ -1,25 +1,21 @@
 package com.getui.getuiunity;
 
+import com.igexin.sdk.GTIntentService;
 import android.content.Context;
 
 
 import com.igexin.sdk.GTIntentService;
 import com.igexin.sdk.message.GTCmdMessage;
+import com.igexin.sdk.message.GTNotificationMessage;
 import com.igexin.sdk.message.GTTransmitMessage;
 import com.unity3d.player.UnityPlayer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
 /**
- * Created by zhourh on 2017/3/17.
- * 继承 GTIntentService 接收来自个推的消息, 所有消息在线程中回调, 如果注册了该服务, 则务必要在 AndroidManifest中声明, 否则无法接受消息<br>
- * onReceiveMessageData 处理透传消息<br>
- * onReceiveClientId 接收 cid <br>
- * onReceiveOnlineState cid 离线上线通知 <br>
- * onReceiveCommandResult 各种事件处理回执 <br>
+ * Created by wanghaobo on 2018/3/20.
  */
+
 public class GTPushIntentService extends GTIntentService {
 
     public GTPushIntentService() {
@@ -56,5 +52,55 @@ public class GTPushIntentService extends GTIntentService {
 
     @Override
     public void onReceiveCommandResult(Context context, GTCmdMessage cmdMessage) {
+    }
+
+    /*
+     * 通知到达
+     * 点击回调
+     * 1.appid
+     * 2.taskid
+     * 3.messageid
+     * 4.pkg
+     * 5.cid
+     * 6.title
+     * 7.content
+     */
+
+    @Override
+    public void onNotificationMessageArrived(Context context, GTNotificationMessage message) {
+        try{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type","onNotificationMessageArrived");
+            jsonObject.put("appId",message.getAppid());
+            jsonObject.put("taskId",message.getTaskId());
+            jsonObject.put("messageId",message.getMessageId());
+            jsonObject.put("pkg",message.getPkgName());
+            jsonObject.put("cid",message.getClientId());
+            jsonObject.put("title",message.getTitle());
+            jsonObject.put("content",message.getContent());
+            UnityPlayer.UnitySendMessage(GTPushBridge.GAMA_OBJECT,"onNotificationMessageArrived",jsonObject.toString());
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onNotificationMessageClicked(Context context, GTNotificationMessage message) {
+        try{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type","onNotificationMessageClicked");
+            jsonObject.put("appId",message.getAppid());
+            jsonObject.put("taskId",message.getTaskId());
+            jsonObject.put("messageId",message.getMessageId());
+            jsonObject.put("pkg",message.getPkgName());
+            jsonObject.put("cid",message.getClientId());
+            jsonObject.put("title",message.getTitle());
+            jsonObject.put("content",message.getContent());
+            UnityPlayer.UnitySendMessage(GTPushBridge.GAMA_OBJECT,"onNotificationMessageClicked",jsonObject.toString());
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 }

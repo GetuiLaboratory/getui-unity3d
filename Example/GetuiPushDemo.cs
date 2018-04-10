@@ -18,9 +18,9 @@ public struct  BindAliasActionType
 }
 
 public class GetuiPushDemo : MonoBehaviour {
-	const string appId = "iMahVVxurw6BNr7XSn9EF2";
-	const string appKey = "yIPfqwq6OMAPp6dkqgLpG5";
-	const string appSecret = "G0aBqAD6t79JfzTB6Z5lo5";
+	const string appId = "IbmKW6ssr99lveCtPMG9dA";
+	const string appKey = "RhhDAohWe16Ejdgmw7roB1";
+	const string appSecret = "ytJMQpWxEQ7HhnFMHcjZV2";
 	bool tokenSent;
 
 	// Use this for initialization
@@ -80,6 +80,7 @@ public class GetuiPushDemo : MonoBehaviour {
 		GTPushBinding.bindAlias ("getui");
 		GTPushBinding.unBindAlias ("getui");
 		#endif
+	
 	}
 
 	/**
@@ -95,6 +96,13 @@ public class GetuiPushDemo : MonoBehaviour {
 		Debug.Log ("GeTuiSdkDidReceivePayloadData payload JsonData : " + payloadJsonData);
 	}
 
+	public void onNotificationMessageArrived(string msg){
+		Debug.Log ("whb,onNotificationMessageArrived : " + msg);
+	}
+
+	public void onNotificationMessageClicked(string  msg){
+		Debug.Log ("whb,onNotificationMessageClicked : " + msg);
+	}
 	#if UNITY_IPHONE
 	/**
  *  SDK设置关闭推送模式回调

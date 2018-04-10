@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.igexin.sdk.GTServiceManager;
-
 /**
- * Created by zhourh on 2017/3/17.
+ * Created by wanghaobo on 2018/3/20.
  */
 
-public class GTPushService extends Service{
-    @Override
+public class GTPushService extends Service {
     public void onCreate() {
         super.onCreate();
         GTServiceManager.getInstance().onCreate(this);
