@@ -68,6 +68,26 @@ void Update () {
 ```
 更多细节请参考 demo
 
+注意：如果某些 Unity 版本在允许弹窗的情况下无法根据 NotificationServices.deviceToken 获取到 deviceToken，请根据以下步骤检查项目：
+
+- 开启 Push Notification 能力。
+
+![](http://docs.getui.com/img/img_getui_mobile_ios_xcode_9.png)
+
+- 将 `Preprocessor.h` 文件中 `UNITY_USES_REMOTE_NOTIFICATIONS` 的值 0 改为 1。
+
+如果依然不能正常获取 deviceToken，则在生成的原生项目的 `UnityAppController.mm` 中导入头文件 `#import "GeTuiSdk.h"
+`并在 `- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken`方法中添加如下代码：
+
+````
+NSString *token = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+NSLog(@"\n>>>[DeviceToken Success]:%@\n\n", token);
+
+// [ GTSdk ]：向个推服务器注册deviceToken
+[GeTuiSdk registerDeviceToken:token]; 
+````
+
 2、生成 iOS 工程，并打开该工程。
 
 添加必要的框架。
