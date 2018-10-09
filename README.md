@@ -6,8 +6,12 @@
 
 2. 运行插件目录下的 GTPushUnityPlugin_vX.X.X.unitypackage
 
+3. 当前版本unitypackage版本v1.2
+
 插件将会自动添加到 Unity3D 工程中，完成插件的添加。
 
+## 更新日志
+支持Android9.0
 
 ## 2. demo 脚本的挂载
 在 Unity 游戏场景中，新建一个空的 `Gameobject`，挂载 `GetuiPushDemo.cs`（或者直接挂载到 `Main Camera`），然后根据项目需要对 `GetuiPushDemo.cs` 中的个推推送功能进行定制，其中有某些参数需要到个推官网注册生成并引用。（[个推开发者平台](https://dev.getui.com/dos4.0/index.html#login)）
