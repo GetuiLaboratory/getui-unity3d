@@ -27,7 +27,7 @@
         android:protectionLevel="normal" >
     </permission>
 
-    <application>
+    <application android:usesCleartextTraffic="true">
 
 
         <!-- 个推SDK配置开始 -->
