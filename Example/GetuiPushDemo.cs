@@ -18,9 +18,9 @@ public struct  BindAliasActionType
 }
 
 public class GetuiPushDemo : MonoBehaviour {
-	const string appId = "IbmKW6ssr99lveCtPMG9dA";
-	const string appKey = "RhhDAohWe16Ejdgmw7roB1";
-	const string appSecret = "ytJMQpWxEQ7HhnFMHcjZV2";
+	const string appId = "GVZZTqh7lu6S4VLMacneZ7";
+	const string appKey = "RRYDFjGzO17TJXZfGeTuq3";
+	const string appSecret = "7BXDJ0IgWF6a8M0xCgo4G";
 	bool tokenSent;
 
 	// Use this for initialization
