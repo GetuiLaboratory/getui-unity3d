@@ -13,7 +13,7 @@ namespace GTPush
 
 		static  GTPushBinding ()
 		{
-			using (AndroidJavaClass gtPushClass = new AndroidJavaClass ("com.getui.getuiunity.GTPushBridge")) {
+			using (AndroidJavaClass gtPushClass = new AndroidJavaClass ("com.getui.sdk.unity.GTPushUnityBridge")) {
 				_plugin = gtPushClass.CallStatic<AndroidJavaObject> ("getInstance");
 			}
 		}
@@ -96,7 +96,7 @@ namespace GTPush
 
 		/**
 		* 绑定别名
-    */
+        */
 		public static bool bindAlias (string alias)
 		{
 			bool result = _plugin.Call<bool> ("bindAlias", alias);
@@ -257,6 +257,10 @@ namespace GTPush
 				return " ";
 		}
 
+		/**
+	     *  
+	     * 废弃 插件内部已实现注册DeviceToken
+	     */
 		public static void registerDeviceToken (string token)
 		{
 			// Call plugin only when running on real device

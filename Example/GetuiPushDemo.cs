@@ -18,13 +18,16 @@ public struct  BindAliasActionType
 }
 
 public class GetuiPushDemo : MonoBehaviour {
-	const string appId = "GVZZTqh7lu6S4VLMacneZ7";
-	const string appKey = "RRYDFjGzO17TJXZfGeTuq3";
-	const string appSecret = "7BXDJ0IgWF6a8M0xCgo4G";
+
+	const string appId = "IbmKW6ssr99lveCtPMG9dA";
+	const string appKey = "RhhDAohWe16Ejdgmw7roB1";
+	const string appSecret = "ytJMQpWxEQ7HhnFMHcjZV2";
 	bool tokenSent;
 
 	// Use this for initialization
 	void Start () {
+
+		Debug.Log ("GetuiSdk Demo");
 
 		#if UNITY_IPHONE
 		tokenSent = false;
@@ -32,34 +35,24 @@ public class GetuiPushDemo : MonoBehaviour {
 		GTPushBinding.setListenerGameObject (this.gameObject.name);
 		GTPushBinding.registerUserNotification ();
 		// 注册 VoIP 通知
-		GTPushBinding.voipRegistration();
+		GTPushBinding.voipRegistration ();
 		#endif
 
 		#if UNITY_ANDROID
-		GTPushBinding.initPush (this.gameObject.name);
+		GTPushBinding.initPush(this.gameObject.name);
+		Debug.Log ("GetuiSdk initPush");
 		#endif
 
 		#if (UNITY_IPHONE || UNITY_ANDROID)
-		Debug.Log ("getui sdk version is : " + GTPushBinding.getVersion());
-		Debug.Log ("isPushTurnOn is : " + GTPushBinding.isPushTurnOn());
+		Debug.Log ("GetuiSdk version is : " + GTPushBinding.getVersion());
+		Debug.Log ("GetuiSdk isPushTurnOn is : " + GTPushBinding.isPushTurnOn());
 
 		#endif
 	}
 
 	// Update is called once per frame
 	void Update () {
-		#if UNITY_IPHONE
-		if (!tokenSent) {
-			byte[] token = NotificationServices.deviceToken;
-			if (token != null) {
-				// send token to a provider
-				tokenSent = true;
-				string deviceToken = System.BitConverter.ToString(token).Replace("-","");
-				GTPushBinding.registerDeviceToken (deviceToken);
-				Debug.Log ("deviceToken is : " + deviceToken +  " cid is : "+GTPushBinding.getClientId() + " version is : " + GTPushBinding.getVersion());
-			}
-		}
-		#endif
+		
 	}
 
 	//
@@ -74,7 +67,7 @@ public class GetuiPushDemo : MonoBehaviour {
  *  注意: 注册成功仅表示推送通道建立，如果appid/appkey/appSecret等验证不通过，依然无法接收到推送消息，请确保验证信息正确。
  */
 	public void onReceiveClientId(string clientId){
-		Debug.Log ("GeTuiSdkDidRegisterClient clientId : " + clientId);
+		Debug.Log ("GetuiSdk onReceiveClientId : " + clientId);
 		#if (UNITY_IPHONE || UNITY_ANDROID)
 		GTPushBinding.setTag ("ge,tui");
 		GTPushBinding.bindAlias ("getui");
@@ -93,15 +86,15 @@ public class GetuiPushDemo : MonoBehaviour {
  *  @param appId       应用的appId
  */
 	public void onReceiveMessage(string payloadJsonData){
-		Debug.Log ("GeTuiSdkDidReceivePayloadData payload JsonData : " + payloadJsonData);
+		Debug.Log ("GetuiSdk onReceiveMessage payload JsonData : " + payloadJsonData);
 	}
 
 	public void onNotificationMessageArrived(string msg){
-		Debug.Log ("whb,onNotificationMessageArrived : " + msg);
+		Debug.Log ("GetuiSdk onNotificationMessageArrived : " + msg);
 	}
 
 	public void onNotificationMessageClicked(string  msg){
-		Debug.Log ("whb,onNotificationMessageClicked : " + msg);
+		Debug.Log ("GetuiSdk onNotificationMessageClicked : " + msg);
 	}
 	#if UNITY_IPHONE
 	/**
@@ -110,7 +103,7 @@ public class GetuiPushDemo : MonoBehaviour {
  *  @param isModeOn true：开启 false：关闭
  */
 	public void GeTuiSdkDidSetPushMode(string isModeOn){
-		Debug.Log ("GeTuiSdkDidSetPushMode isModeOn : " + isModeOn);
+		Debug.Log ("GetuiSdk GeTuiSdkDidSetPushMode isModeOn : " + isModeOn);
 	}
 	/**
  *  SDK遇到错误消息返回error
@@ -118,7 +111,7 @@ public class GetuiPushDemo : MonoBehaviour {
  *  @param error SDK内部发生错误，通知第三方，返回错误
  */
 	public void GeTuiSdkDidOccurError(string error){
-		Debug.Log ("GeTuiSdkDidOccurError error : " + error);
+		Debug.Log ("GetuiSdk GeTuiSdkDidOccurError error : " + error);
 	}
 
 	/**
@@ -127,7 +120,7 @@ public class GetuiPushDemo : MonoBehaviour {
 	 *  @param message 返回SDK运行状态
 	 */
 	public void GeTuiSDkDidNotifySdkState(string state){
-		Debug.Log ("GeTuiSDkDidNotifySdkState state : " + state);
+		Debug.Log ("GetuiSdk GeTuiSDkDidNotifySdkState state : " + state);
 	}
 
 	/**
@@ -140,12 +133,12 @@ public class GetuiPushDemo : MonoBehaviour {
 	 */
 
 	public void GeTuiSdkDidAliasAction(string message){
-		Debug.Log ("GeTuiSdkDidAliasAction message : " + message);
+		Debug.Log ("GetuiSdk GeTuiSdkDidAliasAction message : " + message);
 	}
 
 	// VoIP 推送消息回调
 	public void onReceiveVoIPMessage(string message){
-		Debug.Log ("onReceiveVoIPMessage message : " + message);
+		Debug.Log ("GetuiSdk onReceiveVoIPMessage message : " + message);
 	}
 	#endif
 }

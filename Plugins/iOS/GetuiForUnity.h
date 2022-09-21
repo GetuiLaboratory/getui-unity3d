@@ -6,9 +6,7 @@
 //  Copyright © 2016年 dzq. All rights reserved.
 //
 
-#import "GeTuiSdk.h"
 #import <Foundation/Foundation.h>
-#import <PushKit/PushKit.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -18,9 +16,6 @@ extern void UnitySendMessage(const char *, const char *, const char *);
 }
 #endif
 
-@interface GetuiForUnity : NSObject <GeTuiSdkDelegate,PKPushRegistryDelegate>
+@interface GetuiForUnity : NSObject
 
-+ (void)sendU3dMessage:(NSString *)messageName param:(id)dict;
-- (void)setListenerGameObject:(NSString *)GameObjectName;
-+ (void)registerUserNotification;
 @end

@@ -8,10 +8,77 @@
 
 #import "GetuiForUnity.h"
 #import <UIKit/UIKit.h>
-static NSString *gameObjectName = nil;
+#import <UserNotifications/UserNotifications.h>
+#import <PushKit/PushKit.h>
+#import "GeTuiSdk.h"
+#import "AppDelegateListener.h"
+
+@interface GetuiForUnity () <AppDelegateListener, GeTuiSdkDelegate, PKPushRegistryDelegate>
+
+@property (nonatomic, strong) NSDictionary *launchOptions;
+
+/**
+ *  设置接收 UnitySendMessage 的 GameObject
+ *
+ *  @param GameObjectName GameObject 名称
+ */
+@property (nonatomic, copy) NSString *gameObjectName;
+
+@end
+
 @implementation GetuiForUnity
 
++ (void)load
+{
+    [GetuiForUnity sharedInstance];
+}
+
++ (instancetype)sharedInstance
+{
+    static GetuiForUnity *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[GetuiForUnity alloc] init];
+    });
+    return instance;
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        UnityRegisterAppDelegateListener(self);
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    UnityUnregisterAppDelegateListener(self);
+}
+
+- (void)applicationWillFinishLaunchingWithOptions:(NSNotification*)notification
+{
+    self.launchOptions = notification.userInfo;
+}
+
+- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSNotification*)notification
+{
+    NSData *data = (id)notification.userInfo;
+    if ([data isKindOfClass:[NSData class]]) {
+        [GeTuiSdk registerDeviceTokenData:data];
+    }
+}
+
+#pragma mark --
+
 //message tools
+- (NSString *)gameObjectName
+{
+    if (!_gameObjectName) {
+        _gameObjectName = @"Main Camera";
+    }
+    return _gameObjectName;
+}
 
 + (void)sendU3dMessage:(NSString *)messageName param:(id)dict {
     NSString *param = @"";
@@ -20,10 +87,7 @@ static NSString *gameObjectName = nil;
     } else {
         param = dict;
     }
-    if (!gameObjectName) {
-        gameObjectName = @"Main Camera";
-    }
-    UnitySendMessage([gameObjectName UTF8String], [messageName UTF8String], [param UTF8String]);
+    UnitySendMessage([[GetuiForUnity sharedInstance].gameObjectName UTF8String], [messageName UTF8String], [param UTF8String]);
 }
 
 + (NSString *)DataTOjsonString:(id)object {
@@ -42,21 +106,33 @@ static NSString *gameObjectName = nil;
 
 #pragma mark - Getui Delegate
 
-- (void)GeTuiSdkDidRegisterClient:(NSString *)clientId {
-    [GetuiForUnity sendU3dMessage:@"onReceiveClientId" param:clientId];
-}
-- (void)GeTuiSdkDidReceivePayloadData:(NSData *)payloadData andTaskId:(NSString *)taskId andMsgId:(NSString *)msgId andOffLine:(BOOL)offLine fromGtAppId:(NSString *)appId {
-    // [4]: 收到个推消息
-    NSString *payloadMsg = nil;
-    if (payloadData) {
-        payloadMsg = [[NSString alloc] initWithData:payloadData encoding:NSUTF8StringEncoding];
+- (void)GeTuiSdkDidReceiveNotification:(NSDictionary *)userInfo notificationCenter:(UNUserNotificationCenter *)center response:(UNNotificationResponse *)response fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo, @"msg", nil];
+    [GetuiForUnity sendU3dMessage:@"onNotificationMessageClicked" param:ret];
+    if (completionHandler) {
+        // [ 参考代码，开发者注意根据实际需求自行修改 ] 根据APP需要自行修改参数值
+        completionHandler(UIBackgroundFetchResultNoData);
     }
+}
+
+- (void)GeTuiSdkDidReceiveSlience:(NSDictionary *)userInfo fromGetui:(BOOL)fromGetui offLine:(BOOL)offLine appId:(NSString *)appId taskId:(NSString *)taskId msgId:(NSString *)msgId fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    // [4]: 收到透传消息
     NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
                                           @"payload", @"type",
                                           taskId, @"taskId",
                                           msgId, @"messageId",
-                                          payloadMsg, @"payload", nil];
+                         userInfo[@"payload"] ? :@"", @"payload",
+                         offLine ? @"true" : @"false", @"offLine", nil];
     [GetuiForUnity sendU3dMessage:@"onReceiveMessage" param:ret];
+    if(completionHandler) {
+        // [ 参考代码，开发者注意根据实际需求自行修改 ] 根据APP需要自行修改参数值
+        completionHandler(UIBackgroundFetchResultNoData);
+    }
+}
+
+- (void)GeTuiSdkDidRegisterClient:(NSString *)clientId {
+    [GetuiForUnity sendU3dMessage:@"onReceiveClientId" param:clientId];
 }
 
 - (void)GeTuiSdkDidOccurError:(NSError *)error {
@@ -69,7 +145,7 @@ static NSString *gameObjectName = nil;
 }
 
 - (void)GeTuiSDkDidNotifySdkState:(SdkStatus)aStatus {
-    [GetuiForUnity sendU3dMessage:@"GeTuiSDkDidNotifySdkState" param:[NSString stringWithFormat:@"%d", aStatus]];
+    [GetuiForUnity sendU3dMessage:@"GeTuiSDkDidNotifySdkState" param:[NSString stringWithFormat:@"%ld", aStatus]];
 }
 
 - (void)GeTuiSdkDidAliasAction:(NSString *)action result:(BOOL)isSuccess sequenceNum:(NSString *)aSn error:(NSError *)aError {
@@ -83,43 +159,10 @@ static NSString *gameObjectName = nil;
     [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidAliasAction" param:ret];
 }
 
-
-/**
- *  设置接收 UnitySendMessage 的 GameObject
- *
- *  @param GameObjectName GameObject 名称
- */
-- (void)setListenerGameObject:(NSString *)GameObjectName {
-    gameObjectName = GameObjectName;
-}
 /** 注册用户通知 */
 + (void)registerUserNotification {
-
-    /*
-     注册通知(推送)
-     申请App需要接受来自服务商提供推送消息
-     */
-
-    // 判读系统版本是否是“iOS 8.0”以上
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0 ||
-        [UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
-
-        // 定义用户通知类型(Remote.远程 - Badge.标记 Alert.提示 Sound.声音)
-        UIUserNotificationType types = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound;
-
-        // 定义用户通知设置
-        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
-
-        // 注册用户通知 - 根据用户通知设置
-        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-        [[UIApplication sharedApplication] registerForRemoteNotifications];
-    } else { // iOS8.0 以前远程推送设置方式
-        // 定义远程通知类型(Remote.远程 - Badge.标记 Alert.提示 Sound.声音)
-        UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound;
-
-        // 注册远程通知 -根据远程通知类型
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
-    }
+    // [ 参考代码，开发者注意根据实际需求自行修改 ] 注册远程通知
+    [GeTuiSdk registerRemoteNotification: (UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge)];
 }
 
 #pragma mark - VOIP related
@@ -129,7 +172,11 @@ static NSString *gameObjectName = nil;
 /** 系统返回VOIPToken，并提交个推服务器 */
 
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type {
-    [GeTuiSdk registerVoipTokenCredentials:credentials.token];
+    NSString *voiptoken = [credentials.token.description stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    voiptoken = [voiptoken stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSLog(@"\n>>>[VoIP Token]:%@\n\n",voiptoken);
+    //向个推服务器注册 VoipToken
+    [GeTuiSdk registerVoipToken:voiptoken];
 }
 
 /** 接收VOIP推送中的payload进行业务逻辑处理（一般在这里调起本地通知实现连续响铃、接收视频呼叫请求等操作），并执行个推VOIP回执统计 */
@@ -149,8 +196,6 @@ static NSString *gameObjectName = nil;
 }
 
 @end
-
-static GetuiForUnity *delegateObject = nil;
 
 // Converts C style string to NSString
 NSString *GTCreateNSString(const char *string) {
@@ -179,23 +224,20 @@ char *GTMakeStringCopy(const char *string) {
 extern "C" {
 #endif
 void _StartSDK(const char *appId, const char *appKey, const char *appSecret) {
-    if (delegateObject == nil)
-        delegateObject = [[GetuiForUnity alloc] init];
-
-    [GeTuiSdk startSdkWithAppId:GTCreateNSString(appId) appKey:GTCreateNSString(appKey) appSecret:GTCreateNSString(appSecret) delegate:delegateObject];
+    [GeTuiSdk startSdkWithAppId:GTCreateNSString(appId) appKey:GTCreateNSString(appKey) appSecret:GTCreateNSString(appSecret) delegate:[GetuiForUnity sharedInstance] launchingOptions:[GetuiForUnity sharedInstance].launchOptions];
+    [GetuiForUnity sharedInstance].launchOptions = nil;
+    
 }
 void _registerUserNotification() {
     [GetuiForUnity registerUserNotification];
 }
 void _setListenerGameObject(const char *gameObjectName) {
-    if (delegateObject == nil)
-        delegateObject = [[GetuiForUnity alloc] init];
-    [delegateObject setListenerGameObject:GTCreateNSString(gameObjectName)];
+    [GetuiForUnity sharedInstance].gameObjectName = GTCreateNSString(gameObjectName);
 }
 
 void _registerDeviceToken(const char *token) {
-    NSString *deviceToken = GTCreateNSString(token);
-    [GeTuiSdk registerDeviceToken:deviceToken];
+//    NSString *deviceToken = GTCreateNSString(token);
+//    [GeTuiSdk registerDeviceToken:deviceToken];
 }
 
 const char *_clientId(const char *alias) {
@@ -212,7 +254,7 @@ void _bindAlias(const char *alias, const char *aSn) {
     [GeTuiSdk bindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn)];
 }
 const int _status() {
-    return [GeTuiSdk status];
+    return (int)[GeTuiSdk status];
 }
 void _unBindAlias(const char *alias, const char *aSn) {
     [GeTuiSdk unbindAlias:GTCreateNSString(alias) andSequenceNum:GTCreateNSString(aSn) andIsSelf:YES];
@@ -245,7 +287,7 @@ void _setChannelId(const char *aChannelId) {
 void _voipRegistration() {
     dispatch_queue_t mainQueue = dispatch_get_main_queue();
     PKPushRegistry *voipRegistry = [[PKPushRegistry alloc] initWithQueue:mainQueue];
-    voipRegistry.delegate = delegateObject;
+    voipRegistry.delegate = [GetuiForUnity sharedInstance];
     // Set the push type to VoIP
     voipRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
 }

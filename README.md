@@ -6,7 +6,7 @@
 
 2. 运行插件目录下的 GTPushUnityPlugin_vX.X.X.unitypackage
 
-3. 当前版本unitypackage版本v1.2
+3. 当前版本unitypackage版本v1.3
 
 插件将会自动添加到 Unity3D 工程中，完成插件的添加。
 
@@ -14,24 +14,96 @@
 支持Android9.0
 
 ## 2. demo 脚本的挂载
-在 Unity 游戏场景中，新建一个空的 `Gameobject`，挂载 `GetuiPushDemo.cs`（或者直接挂载到 `Main Camera`），然后根据项目需要对 `GetuiPushDemo.cs` 中的个推推送功能进行定制，其中有某些参数需要到个推官网注册生成并引用。（[个推开发者平台](https://dev.getui.com/dos4.0/index.html#login)）
+在 Unity 游戏场景中，新建一个空的 `Gameobject`，挂载 `GetuiPushDemo.cs`（或者直接挂载到 `Main Camera`），然后根据项目需要对 `GetuiPushDemo.cs` 中的个推推送功能进行定制，其中有某些参数需要到个推官网注册生成并引用。（[个推开发者平台](https://dev.getui.com/dev/#/login)）
 
 ## 3. Android 插件使用
-- 替换 `Assets/Plugins/Android/AndroidManifest.xml`里的包名。
+> **在unity3d高版本的中plugins/Android/下，assets、res等文件夹已经不能使用了，建议使用AAR or an Android Library**，所以升级后的插件是按照高版本的规范实现。
+>
+> Exception: OBSOLETE - Providing Assets/Plugins/Android/res was removed, please move your resources to an AAR or an Android Library. See "AAR plug-ins and Android Libraries" section of the Manual for more details.
+>
+> Exception: OBSOLETE - Providing Android resources in Assets/Plugins/Android/assets was removed, please move your resources to an AAR or an Android Library. See "AAR plug-ins and Android Libraries" section of the Manual for more details.
 
-- 将 `Assets/Plugins/Android/AndroidManifest.xml`里对应的`PUSH_APPID`,`PUSH_APPKEY`,`AUSH_APPSECRET`的值替换成在个推控制台应用配置中获得的对应值。
+#### 插件支持个推推送和多厂商渠道。目前支持以下厂商渠道：（[多厂商接入](https://docs.getui.com/getui/mobile/vendor/vendor_open/)）
 
-- 如果其他插件已经存在 AndroidManifest.xml 文件，请自行进行配置合并。
+- 华为
+- 小米
+- OPPO
+- VIVO
+- 魅族
+- 荣耀
+- UPS
 
+使用的时候需要替换`Assets/Plugins/Android/launcherTemplate.gradle`文件中`manifestPlaceholders`的参数：
+
+```groovy
+				manifestPlaceholders = [
+                //个推相关参数
+                GETUI_APPID: "nUBZWbUutY5yXoO6Uswzf",
+                GT_INSTALL_CHANNEL: "mubai_test",
+                // 华为 相关应用参数
+                HUAWEI_APP_ID  : "107082779",
+
+                // 小米相关应用参数
+                XIAOMI_APP_ID  : "",
+                XIAOMI_APP_KEY : "",
+
+                // OPPO 相关应用参数
+                OPPO_APP_KEY   : "",
+                OPPO_APP_SECRET: "",
+
+                // VIVO 相关应用参数
+                VIVO_APP_ID    : "",
+                VIVO_APP_KEY   : "",
+
+                // 魅族相关应用参数
+                MEIZU_APP_ID   : "",
+                MEIZU_APP_KEY  : "",
+
+                // 荣耀相关应用参数
+                HONOR_APP_ID   : "",
+        ]
+```
+
+
+
+**华为渠道需要特别说明一下**，在`Assets/Plugins/Android/launcherTemplate.gradle`中，`project.afterEvaluate`方法实现了自动把华为的配置文件拷贝到assets目录下，所以需要您自行替换`hwConfig`的路径
+
+```groovy
+project.afterEvaluate { Project p ->
+    //p: project ':app' ，untiy : project ':launcher'
+    String appPath =  p.getBuildDir().parentFile.absolutePath
+    String assetsPath = appPath +'/src/main/assets'
+    File file = new File(assetsPath,'agconnect-services.json')
+    println 'assetsPath =========================>' + assetsPath
+    println file.absolutePath + ' ====================>  ' + file.exists()
+    if (!file.exists()) {
+        if (!file.parentFile.exists()) {
+            println file.absolutePath + ' mkdir  '
+            file.mkdir()
+        }
+        //华为推送的配置文件路径，请替换下面xxxx，华为推送文件所在的绝对路径
+        File hwConfig = new File('xxxx','agconnect-services.json')
+
+        if (hwConfig.exists()) {
+            copy {
+                from hwConfig
+                into file.parentFile.absolutePath
+            }
+            println 'copy file(hwConfig) success : ' + hwConfig
+        }
+    }
+}
+```
+
+插件接入步骤如下：
+
+* 替换插件包`Assets/Plugins/Android/launcherTemplate.gradle`文件中`manifestPlaceholders`对应的参数。
+* 替换`Assets/Plugins/Android/launcherTemplate.gradle`中`agconnect-services.json`绝对路径（您的应用在华为开发者平台申请后的配置文件）
+
+- 建议自行使用com.android.library打出aar包替换push.png(该图片为通知栏通知的图标)
 - 如果您还未配置您的游戏的`Bundle Idenifier`, 在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在 *Identification* 选项下的 *Bundle Idenifier* 里设置应用的包名。
-
 - 如果您还未设置您的游戏的 Icon，在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
-
 - 如果您需要运行该插件的示例代码，在 Unity 中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
-
-- 如果您需要立即在您自己的游戏中使用插件，请删除`Assets/Plugins/Android/AndroidManifest.xml`中标志有`  <!-- For test only. 测试的主程序 -->`的Activity注册代码。
-
-- 在`Assets/Plugins/Android/res/drawable-xxxx/`替换push.png(该图片为通知栏通知的图标)
 
 ## 4. iOS 插件使用
 

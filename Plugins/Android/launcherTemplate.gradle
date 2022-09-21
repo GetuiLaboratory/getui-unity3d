@@ -1,0 +1,111 @@
+apply plugin: 'com.android.application'
+
+dependencies {
+    implementation project(':unityLibrary')
+}
+
+android {
+    compileSdkVersion **APIVERSION**
+    buildToolsVersion '**BUILDTOOLS**'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion **MINSDKVERSION**
+        targetSdkVersion **TARGETSDKVERSION**
+        applicationId '**APPLICATIONID**'
+        ndk {
+            abiFilters **ABIFILTERS**
+        }
+        versionCode **VERSIONCODE**
+        versionName '**VERSIONNAME**'
+
+        manifestPlaceholders = [
+                //个推相关参数
+                GETUI_APPID: "",
+                GT_INSTALL_CHANNEL: "unity",
+                // 华为 相关应用参数
+                HUAWEI_APP_ID  : "",
+
+                // 小米相关应用参数
+                XIAOMI_APP_ID  : "",
+                XIAOMI_APP_KEY : "",
+
+                // OPPO 相关应用参数
+                OPPO_APP_KEY   : "",
+                OPPO_APP_SECRET: "",
+
+                // VIVO 相关应用参数
+                VIVO_APP_ID    : "",
+                VIVO_APP_KEY   : "",
+
+                // 魅族相关应用参数
+                MEIZU_APP_ID   : "",
+                MEIZU_APP_KEY  : "",
+
+                // 荣耀相关应用参数
+                HONOR_APP_ID   : "",
+        ]
+    }
+
+    aaptOptions {
+        noCompress = **BUILTIN_NOCOMPRESS** + unityStreamingAssets.tokenize(', ')
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }**SIGN**
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled **MINIFY_DEBUG**
+            proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
+            jniDebuggable true
+        }
+        release {
+            minifyEnabled **MINIFY_RELEASE**
+            proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
+        }
+    }**PACKAGING_OPTIONS****PLAY_ASSET_PACKS****SPLITS**
+**BUILT_APK_LOCATION**
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+}**SPLITS_VERSION_CODE****LAUNCHER_SOURCE_BUILD_SETUP**
+
+project.afterEvaluate { Project p ->
+    //p: project ':app' ，untiy : project ':launcher'
+    String appPath =  p.getBuildDir().parentFile.absolutePath
+    String assetsPath = appPath +'/src/main/assets'
+    File file = new File(assetsPath,'agconnect-services.json')
+    println 'assetsPath =========================>' + assetsPath
+    println file.absolutePath + ' ====================>  ' + file.exists()
+    if (!file.exists()) {
+        if (!file.parentFile.exists()) {
+            println file.absolutePath + ' mkdir  '
+            file.mkdir()
+        }
+        //华为推送的配置文件路径，请替换下面xxxx，华为推送文件所在的根路径
+        File hwConfig = new File('xxxx','agconnect-services.json')
+
+        if (hwConfig.exists()) {
+            copy {
+                from hwConfig
+                into file.parentFile.absolutePath
+            }
+            println 'copy file(hwConfig) success : ' + hwConfig
+        }
+    }
+}
