@@ -126,22 +126,7 @@ GetuiPush.registerUserNotification ();
 // 注册 VoIP 通知
 GTPushBinding.voipRegistration();
 ```
-```
-//在 update() 方法中获取到系统注册的 deviceToken
-void Update () {
-		#if UNITY_IPHONE
-		if (!tokenSent) {
-			byte[] token = NotificationServices.deviceToken;
-			if (token != null) {
-				// send token to a provider
-				string deviceToken = System.BitConverter.ToString(token).Replace("-","");
-				// 在个推插件中注册 deviceToken，完成个推注册
-				GTPushBinding.registerDeviceToken (deviceToken);
-			}
-		}
-		#endif
-	}
-```
+
 更多细节请参考 demo
 
 注意：如果某些 Unity 版本在允许弹窗的情况下无法根据 NotificationServices.deviceToken 获取到 deviceToken，请根据以下步骤检查项目：
@@ -166,6 +151,8 @@ NSLog(@"\n>>>[DeviceToken Success]:%@\n\n", token);
 
 2、生成 iOS 工程，并打开该工程。
 
+Other linker Flags 添加 -Objc
+
 添加必要的框架。
 
 * libc++.tbd
@@ -173,6 +160,8 @@ NSLog(@"\n>>>[DeviceToken Success]:%@\n\n", token);
 * libsqlite3.tbd
 * UserNotifications.framework
 * PushKit.framework
+* CallKit.framework
+* libresolv.tbd
 
 > 注意：UserNotifications.framework 及 PushKit.framework 必须使用 optional 选项，如没有勾选改选项，iOS9 以下机型会因为没有这个库而闪退
 
