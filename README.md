@@ -10,8 +10,12 @@
 
 插件将会自动添加到 Unity3D 工程中，完成插件的添加。
 
+
+
 ## 更新日志
-支持Android9.0
+* 升级android sdk版本到3.2.12.0
+* 升级iOS sdk版本到2.6.9.0
+* android兼容unity编译器高版本打包方式，把多厂商和个推sdk集成到一个aar中
 
 ## 2. demo 脚本的挂载
 在 Unity 游戏场景中，新建一个空的 `Gameobject`，挂载 `GetuiPushDemo.cs`（或者直接挂载到 `Main Camera`），然后根据项目需要对 `GetuiPushDemo.cs` 中的个推推送功能进行定制，其中有某些参数需要到个推官网注册生成并引用。（[个推开发者平台](https://dev.getui.com/dev/#/login)）
@@ -36,32 +40,32 @@
 使用的时候需要替换`Assets/Plugins/Android/launcherTemplate.gradle`文件中`manifestPlaceholders`的参数：
 
 ```groovy
-				manifestPlaceholders = [
-                //个推相关参数
-                GETUI_APPID: "nUBZWbUutY5yXoO6Uswzf",
-                GT_INSTALL_CHANNEL: "mubai_test",
-                // 华为 相关应用参数
-                HUAWEI_APP_ID  : "107082779",
+manifestPlaceholders = [
+    //个推相关参数
+    GETUI_APPID: "",
+    GT_INSTALL_CHANNEL: "",
+    // 华为 相关应用参数
+    HUAWEI_APP_ID  : "",
 
-                // 小米相关应用参数
-                XIAOMI_APP_ID  : "",
-                XIAOMI_APP_KEY : "",
+    // 小米相关应用参数
+    XIAOMI_APP_ID  : "",
+    XIAOMI_APP_KEY : "",
 
-                // OPPO 相关应用参数
-                OPPO_APP_KEY   : "",
-                OPPO_APP_SECRET: "",
+    // OPPO 相关应用参数
+    OPPO_APP_KEY   : "",
+    OPPO_APP_SECRET: "",
 
-                // VIVO 相关应用参数
-                VIVO_APP_ID    : "",
-                VIVO_APP_KEY   : "",
+    // VIVO 相关应用参数
+    VIVO_APP_ID    : "",
+    VIVO_APP_KEY   : "",
 
-                // 魅族相关应用参数
-                MEIZU_APP_ID   : "",
-                MEIZU_APP_KEY  : "",
+    // 魅族相关应用参数
+    MEIZU_APP_ID   : "",
+    MEIZU_APP_KEY  : "",
 
-                // 荣耀相关应用参数
-                HONOR_APP_ID   : "",
-        ]
+    // 荣耀相关应用参数
+    HONOR_APP_ID   : "",
+]
 ```
 
 
@@ -81,7 +85,7 @@ project.afterEvaluate { Project p ->
             println file.absolutePath + ' mkdir  '
             file.mkdir()
         }
-        //华为推送的配置文件路径，请替换下面xxxx，华为推送文件所在的绝对路径
+        //华为推送的配置文件路径，请替换下面xxxx（华为推送的配置文件的绝对路径）
         File hwConfig = new File('xxxx','agconnect-services.json')
 
         if (hwConfig.exists()) {
@@ -133,7 +137,7 @@ GTPushBinding.voipRegistration();
 
 - 开启 Push Notification 能力。
 
-![](http://docs.getui.com/img/img_getui_mobile_ios_xcode_9.png)
+![](https://docs.getui.com/img/img_getui_mobile_ios_xcode_9.png)
 
 - 将 `Preprocessor.h` 文件中 `UNITY_USES_REMOTE_NOTIFICATIONS` 的值 0 改为 1。
 
@@ -176,11 +180,11 @@ Unity3D 有时候会默认添加以下几个 framework，视具体版本而定�
 
 3、在 Xcode 8.x 以上，必须开启Push Notification能力。找到应用Target设置中的Capabilities -> Push Notifications，确认开关已经设为ON状态。如果没有开启该开关，在 Xcode 8.x 上编译后的应用将获取不到DeviceToken：
 
-![](http://docs.getui.com/img/img_getui_mobile_ios_xcode_9.png)
+![](https://docs.getui.com/img/img_getui_mobile_ios_xcode_9.png)
 
 为了更好支持消息推送，SDK可定期抓取离线消息，提高消息到达率，需要配置后台运行权限：
 
-![](http://docs.getui.com/img/img_getui_mobile_ios_xcode_10.png)
+![](https://docs.getui.com/img/img_getui_mobile_ios_xcode_10.png)
 
 4、iOS 推送证书配置请参考：[创建 APNs 推送证书](http://docs.getui.com/mobile/ios/apns/)
 
