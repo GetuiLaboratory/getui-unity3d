@@ -1,4 +1,4 @@
-# Getui-Unity3D
+# 3Getui-Unity3D
 这是个推官方支持的 Unity3D 插件（Android & iOS）。更多详情请访问个推官网：[http://docs.getui.com/](http://docs.getui.com/)。
 ## 1. 添加插件
 
@@ -111,13 +111,11 @@ project.afterEvaluate { Project p ->
 #### 2018.x版本插件接入步骤如下：
 
 * 替换插件包`Assets/Plugins/Android/mainTemplate.gradle`文件中`manifestPlaceholders`对应的参数。
-* 替换`Assets/Plugins/Android/launcherTemplate.gradle`中`agconnect-services.json`**绝对路径**（您的应用在华为开发者平台申请后的配置文件）
+* 华为厂商需要替换`Assets/Plugins/Android/assets/agconnect-services.json`
 
-- 建议自行使用com.android.library打出aar包替换push.png(该图片为通知栏通知的图标)
 - 如果您还未配置您的游戏的`Bundle Idenifier`, 在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在 *Identification* 选项下的 *Bundle Idenifier* 里设置应用的包名。
 - 如果您还未设置您的游戏的 Icon，在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
 - 如果您需要运行该插件的示例代码，在 Unity 中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
-- 华为厂商需要替换`Assets/Plugins/Android/assets/agconnect-services.json`
 
 > **特别注意** 
 >
