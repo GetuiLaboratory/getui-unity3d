@@ -97,7 +97,7 @@ project.afterEvaluate { Project p ->
             println file.absolutePath + ' mkdir  '
             file.mkdir()
         }
-        //华为推送的配置文件路径，请替换下面xxxx，华为推送文件所在的根路径
+        //华为推送的配置文件路径（绝对路径！！！！！），请替换下面xxxx
         File hwConfig = new File('xxxx','agconnect-services.json')
 
         if (hwConfig.exists()) {

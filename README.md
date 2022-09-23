@@ -10,6 +10,9 @@
 
 插件将会自动添加到 Unity3D 工程中，完成插件的添加。
 
+* unity2018.x系列的版本：GTPushUnityPlugin_v1.3(2018.x).unitypackage，支持assets、res等资源文件夹，使用gradle打包的方式
+* unity2021.x系列的版本：GTPushUnityPlugin_v1.3(2021.x).unitypackage
+
 
 
 ## 更新日志
@@ -21,12 +24,6 @@
 在 Unity 游戏场景中，新建一个空的 `Gameobject`，挂载 `GetuiPushDemo.cs`（或者直接挂载到 `Main Camera`），然后根据项目需要对 `GetuiPushDemo.cs` 中的个推推送功能进行定制，其中有某些参数需要到个推官网注册生成并引用。（[个推开发者平台](https://dev.getui.com/dev/#/login)）
 
 ## 3. Android 插件使用
-> **在unity3d高版本的中plugins/Android/下，assets、res等文件夹已经不能使用了，建议使用AAR or an Android Library**，所以升级后的插件是按照高版本的规范实现。
->
-> Exception: OBSOLETE - Providing Assets/Plugins/Android/res was removed, please move your resources to an AAR or an Android Library. See "AAR plug-ins and Android Libraries" section of the Manual for more details.
->
-> Exception: OBSOLETE - Providing Android resources in Assets/Plugins/Android/assets was removed, please move your resources to an AAR or an Android Library. See "AAR plug-ins and Android Libraries" section of the Manual for more details.
-
 #### 插件支持个推推送和多厂商渠道。目前支持以下厂商渠道：（[多厂商接入](https://docs.getui.com/getui/mobile/vendor/vendor_open/)）
 
 - 华为
@@ -37,7 +34,7 @@
 - 荣耀
 - UPS
 
-使用的时候需要替换`Assets/Plugins/Android/launcherTemplate.gradle`文件中`manifestPlaceholders`的参数：
+需要替换`manifestPlaceholders`的参数：
 
 ```groovy
 manifestPlaceholders = [
@@ -70,6 +67,16 @@ manifestPlaceholders = [
 
 
 
+#### 2021.x版本插件接入步骤如下：
+
+* 替换插件包`Assets/Plugins/Android/launcherTemplate.gradle`文件中`manifestPlaceholders`对应的参数。
+* 替换`Assets/Plugins/Android/launcherTemplate.gradle`中`agconnect-services.json`**绝对路径**（您的应用在华为开发者平台申请后的配置文件）
+
+- 建议自行使用com.android.library打出aar包替换push.png(该图片为通知栏通知的图标)
+- 如果您还未配置您的游戏的`Bundle Idenifier`, 在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在 *Identification* 选项下的 *Bundle Idenifier* 里设置应用的包名。
+- 如果您还未设置您的游戏的 Icon，在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
+- 如果您需要运行该插件的示例代码，在 Unity 中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
+
 **华为渠道需要特别说明一下**，在`Assets/Plugins/Android/launcherTemplate.gradle`中，`project.afterEvaluate`方法实现了自动把华为的配置文件拷贝到assets目录下，所以需要您自行替换`hwConfig`的路径
 
 ```groovy
@@ -99,15 +106,82 @@ project.afterEvaluate { Project p ->
 }
 ```
 
-插件接入步骤如下：
 
-* 替换插件包`Assets/Plugins/Android/launcherTemplate.gradle`文件中`manifestPlaceholders`对应的参数。
-* 替换`Assets/Plugins/Android/launcherTemplate.gradle`中`agconnect-services.json`绝对路径（您的应用在华为开发者平台申请后的配置文件）
+
+#### 2018.x版本插件接入步骤如下：
+
+* 替换插件包`Assets/Plugins/Android/mainTemplate.gradle`文件中`manifestPlaceholders`对应的参数。
+* 替换`Assets/Plugins/Android/launcherTemplate.gradle`中`agconnect-services.json`**绝对路径**（您的应用在华为开发者平台申请后的配置文件）
 
 - 建议自行使用com.android.library打出aar包替换push.png(该图片为通知栏通知的图标)
 - 如果您还未配置您的游戏的`Bundle Idenifier`, 在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在 *Identification* 选项下的 *Bundle Idenifier* 里设置应用的包名。
 - 如果您还未设置您的游戏的 Icon，在 Unity 中选择 *File---Build Settings---选择Android Player图标--Player Settings*，在*Identification* 选项下的 *Icon* 里设置图标。
 - 如果您需要运行该插件的示例代码，在 Unity 中将`Assets/GTPluginsDemo.cs`用鼠标拖动到`Main Camera`中（运行后可在Logcat中查看调用日志）。
+- 华为厂商需要替换`Assets/Plugins/Android/assets/agconnect-services.json`
+
+> **特别注意** 
+>
+> 如果使用华为厂商推送除了上述说的处理配置文件`agconnect-services.json`，还需要处理文件的读取，可以使用以下方式：
+>
+> 1. 在AndroidManifest.xml <application/>标签中使用android.name="com.getui.sdk.GTApp"
+>
+>    ```xml
+>    <?xml version="1.0" encoding="utf-8"?>
+>    <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+>      ...代码省略
+>      <application android.name="com.getui.sdk.GTApp">
+>      </application>
+>    
+>    </manifest>
+>    ```
+>
+>    
+>
+> 2. 如果您的应用或者游戏，自定义了Application，那么您需要在`Application.attachBaseContext()`中自己实现读取文件的逻辑：
+>
+>    ```java
+>    package xxx.xxx.xxx;
+>      
+>    import android.app.Application;
+>    import android.content.Context;
+>    
+>    import com.huawei.agconnect.config.AGConnectServicesConfig;
+>    import com.huawei.agconnect.config.LazyInputStream;
+>    
+>    import java.io.IOException;
+>    import java.io.InputStream;
+>    
+>    public class YourApplication extends Application {
+>        @Override
+>        protected void attachBaseContext(Context base) {
+>            super.attachBaseContext(base);
+>            AGConnectServicesConfig config = AGConnectServicesConfig.fromContext(base);
+>            config.overlayWith(new LazyInputStream(base) {
+>                public InputStream get(Context context) {
+>                    try {
+>                        return context.getAssets().open("agconnect-services.json");
+>                    } catch (IOException e) {
+>                        return null;
+>                    }
+>                }
+>            });
+>        }
+>    }
+>    ```
+>
+>    然后在`AndroidManifest.xml`中声明您自己的Application：
+>
+>    ```xml
+>    <?xml version="1.0" encoding="utf-8"?>
+>    <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+>      ...代码省略
+>      <application android.name="xxx.xxx.xxx.YourApplication">
+>      </application>
+>    
+>    </manifest>
+>    ```
+>
+>    
 
 ## 4. iOS 插件使用
 
