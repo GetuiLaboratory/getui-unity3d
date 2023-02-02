@@ -264,6 +264,10 @@ Unity3D 有时候会默认添加以下几个 framework，视具体版本而定�
 
 ![VoIP 权限配置](https://github.com/GetuiLaboratory/react-native-getui/blob/master/example/document/img/ios_1.jpeg?raw=true)
 
+**注意：** 
+
+Apple 在 iOS 10 中新增了Notification Service Extension机制，可在消息送达时进行业务处理。为精确统计消息送达率，在集成个推SDK时，可以添加 Notification Service Extension，并在 Extensions 中添加 GTExtensionSDK 的统计接口，实现消息展示回执统计功能。具体可参考[个推集成文档](https://docs.getui.com/getui/mobile/ios/xcode/)。
+
 # API 使用说明
 > 由于 iOS & Android 注册推送的流程不一样，因此注册流程所暴露的 API 不一致。此外，iOS 有更多的回调接口，也需要注意区别使用。
 
