@@ -65,11 +65,13 @@
 {
     NSData *data = (id)notification.userInfo;
     if ([data isKindOfClass:[NSData class]]) {
+        NSString *token = [GetuiForUnity getHexStringForData:data];
+        NSLog(@"[ DeviceToken(NSString) ]: %@\n\n", token);
         [GeTuiSdk registerDeviceTokenData:data];
     }
 }
 
-#pragma mark --
+//MARK: -
 
 //message tools
 - (NSString *)gameObjectName
@@ -80,31 +82,17 @@
     return _gameObjectName;
 }
 
-+ (void)sendU3dMessage:(NSString *)messageName param:(id)dict {
-    NSString *param = @"";
-    if ([dict isKindOfClass:[NSDictionary class]]) {
-        param = [self DataTOjsonString:dict];
-    } else {
-        param = dict;
-    }
-    UnitySendMessage([[GetuiForUnity sharedInstance].gameObjectName UTF8String], [messageName UTF8String], [param UTF8String]);
-}
+//MARK: - Delegate
 
-+ (NSString *)DataTOjsonString:(id)object {
-    NSString *jsonString = nil;
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object
-                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
-                                                         error:&error];
-    if (!jsonData) {
-        NSLog(@"Got an error: %@", error);
-    } else {
-        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
-    return jsonString;
+- (void)GeTuiSdkNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification completionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
+                         notification.request.content.userInfo, @"msg", nil];
+    [GetuiForUnity sendU3dMessage:@"onNotificationMessageWillPresent" param:ret];
+   
+    
+    //可以控制提示权限
+    completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound);
 }
-
-#pragma mark - Getui Delegate
 
 - (void)GeTuiSdkDidReceiveNotification:(NSDictionary *)userInfo notificationCenter:(UNUserNotificationCenter *)center response:(UNNotificationResponse *)response fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -120,9 +108,9 @@
     // [4]: 收到透传消息
     NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
                                           @"payload", @"type",
-                                          taskId, @"taskId",
-                                          msgId, @"messageId",
-                         userInfo[@"payload"] ? :@"", @"payload",
+                                          taskId?:@"", @"taskId",
+                                          msgId?:@"", @"messageId",
+                         userInfo[@"payload"] ? : userInfo[@"payload"], @"payload",
                          offLine ? @"true" : @"false", @"offLine", nil];
     [GetuiForUnity sendU3dMessage:@"onReceiveMessage" param:ret];
     if(completionHandler) {
@@ -136,7 +124,6 @@
 }
 
 - (void)GeTuiSdkDidOccurError:(NSError *)error {
-
     [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidOccurError" param:[NSString stringWithFormat:@"%@", error]];
 }
 
@@ -154,9 +141,18 @@
                                           action, @"action",
                                           isSuccess ? @"true" : @"false", @"result",
                                           aSn, @"sequenceNum",
-                                          aError, @"error", nil];
+                                          [aError localizedDescription], @"error", nil];
 
     [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidAliasAction" param:ret];
+}
+
+- (void)GeTuiSdkDidSetTagsAction:(NSString *)sequenceNum result:(BOOL)isSuccess error:(NSError *)error {
+    NSDictionary *ret = [NSDictionary dictionaryWithObjectsAndKeys:
+                         isSuccess ? @"true" : @"false", @"result",
+                         sequenceNum, @"sequenceNum",
+                         [error localizedDescription], @"error", nil];
+
+    [GetuiForUnity sendU3dMessage:@"GeTuiSdkDidSetTagsAction" param:ret];
 }
 
 /** 注册用户通知 */
@@ -165,15 +161,18 @@
     [GeTuiSdk registerRemoteNotification: (UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge)];
 }
 
-#pragma mark - VOIP related
+//MARK: - VOIP
 
 // 实现 PKPushRegistryDelegate 协议方法
 
 /** 系统返回VOIPToken，并提交个推服务器 */
 
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(NSString *)type {
+    NSString *voiptoken = [credentials.token.description stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    voiptoken = [voiptoken stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSLog(@"\n>>>[VoIP Token]:%@\n\n",voiptoken);
     //向个推服务器注册 VoipToken
-    [GeTuiSdk registerVoipTokenCredentials:credentials.token];
+    [GeTuiSdk registerVoipToken:voiptoken];
 }
 
 /** 接收VOIP推送中的payload进行业务逻辑处理（一般在这里调起本地通知实现连续响铃、接收视频呼叫请求等操作），并执行个推VOIP回执统计 */
@@ -192,6 +191,43 @@
     [GetuiForUnity sendU3dMessage:@"onReceiveVoIPMessage" param:ret];
 }
 
+
+//MARK: - Tool
+
++ (void)sendU3dMessage:(NSString *)messageName param:(id)dict {
+    NSString *param = @"";
+    if ([dict isKindOfClass:[NSDictionary class]]) {
+        param = [self DataTOjsonString:dict];
+    } else {
+        param = dict;
+    }
+    UnitySendMessage([[GetuiForUnity sharedInstance].gameObjectName UTF8String], [messageName UTF8String], [param UTF8String]);
+}
+
++ (NSString *)DataTOjsonString:(id)object {
+    NSString *jsonString = nil;
+    NSError *error;
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:object
+                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                         error:&error];
+    if (!jsonData) {
+        NSLog(@"Got an error: %@", error);
+    } else {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    return jsonString;
+}
+
++ (NSString *)getHexStringForData:(NSData *)data {
+    NSUInteger len = [data length];
+    char *chars = (char *) [data bytes];
+    NSMutableString *hexString = [[NSMutableString alloc] init];
+    for (NSUInteger i = 0; i < len; i++) {
+        [hexString appendString:[NSString stringWithFormat:@"%0.2hhx", chars[i]]];
+    }
+    return hexString;
+}
 @end
 
 // Converts C style string to NSString

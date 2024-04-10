@@ -13,11 +13,13 @@
 * unity2018.x系列的版本：GTPushUnityPlugin_v1.3(2018.x).unitypackage，支持assets、res等资源文件夹，使用gradle打包的方式
 * unity2021.x系列的版本：GTPushUnityPlugin_v1.3(2021.x).unitypackage
 
+* unity2024.x系列的版本：GTPushUnityPlugin(202404).unitypackage
 
 
 ## 更新日志
-* 升级android sdk版本到3.2.12.0
-* 升级iOS sdk版本到2.6.9.0
+* 2024-04-10 升级iOS sdk版本到3.0.5.0，新增回调onNotificationMessageWillPresent,GeTuiSdkDidSetTagsAction
+* 2023-02-17 升级iOS sdk版本到2.6.9.0
+* 2022-09-21 升级android sdk版本到3.2.12.0
 * android兼容unity编译器高版本打包方式，把多厂商和个推sdk集成到一个aar中
 
 ## 2. demo 脚本的挂载
@@ -196,9 +198,9 @@ const string appSecret = "HGuR9YU1Cq7BUXGXBhbLf7";
 //启动 SDK
 GetuiPush.StartSDK (appId,appKey,appSecret);
 //设置消息回调监听对象，设置为自身，默认为 Main Camera
-GetuiPush.setListenerGameObject (this.gameObject.name);
+GetuiPush.setListenerGameObject(this.gameObject.name);
 //注册推送通知
-GetuiPush.registerUserNotification ();
+GetuiPush.registerUserNotification();
 // 注册 VoIP 通知
 GTPushBinding.voipRegistration();
 ```
@@ -307,6 +309,11 @@ GTPushBinding.setListenerGameObject (this.gameObject.name);
 GTPushBinding.registerUserNotification ();
 GTPushBinding.voipRegistration();
 
+//绑定tag，不同的tag用,分割
+GTPushBinding.setTag("ge,tui");
+GTPushBinding.bindAlias("getui");
+GTPushBinding.unBindAlias("getui");
+
 ```
 
 ### iOS 回调
@@ -351,6 +358,19 @@ GTPushBinding.voipRegistration();
 		Debug.Log ("GeTuiSdkDidAliasAction message : " + message);
 	}
 
+	/*
+	 * 设置标签回调
+	 * 
+	 *  @param result    成功返回 YES, 失败返回 NO
+	 *  @param sequenceNum          返回请求的序列码
+	 *  @param error       成功返回nil, 错误返回相应error信息
+	 */
+	public void GeTuiSdkDidSetTagsAction(string message)
+	{
+		Debug.Log("GetuiSdk GeTuiSdkDidSetTagsAction message : " + message);
+	}
+	
+
 	/** 
 	 *
 	 *	 VoIP 推送消息回调
@@ -358,6 +378,23 @@ GTPushBinding.voipRegistration();
 	public void onReceiveVoIPMessage(string message){
 		Debug.Log ("onReceiveVoIPMessage message : " + message);
 	}
+
+
+
+	public void onNotificationMessageWillPresent(string msg)
+	{
+		Debug.Log("GetuiSdk onNotificationMessageWillPresent : " + msg);
+	}
+
+	public void onNotificationMessageArrived(string msg)
+	{
+		Debug.Log("GetuiSdk onNotificationMessageArrived : " + msg);
+	}
+
+	public void onNotificationMessageClicked(string  msg){
+		Debug.Log ("GetuiSdk onNotificationMessageClicked : " + msg);
+	}
+
 ````
 
 ### Android API
