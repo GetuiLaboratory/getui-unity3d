@@ -9,11 +9,12 @@
 3. 当前版本unitypackage版本v1.3
 
 插件将会自动添加到 Unity3D 工程中，完成插件的添加。
-
-* unity2018.x系列的版本：GTPushUnityPlugin_v1.3(2018.x).unitypackage，支持assets、res等资源文件夹，使用gradle打包的方式
-* unity2021.x系列的版本：GTPushUnityPlugin_v1.3(2021.x).unitypackage
-
+* unity2025.x系列的版本：GTPushUnityPlugin(202404).unitypackage
 * unity2024.x系列的版本：GTPushUnityPlugin(202404).unitypackage
+* unity2021.x系列的版本：GTPushUnityPlugin_v1.3(2021.x).unitypackage
+* unity2018.x系列的版本：GTPushUnityPlugin_v1.3(2018.x).unitypackage，支持assets、res等资源文件夹，使用gradle打包的方式
+
+
 
 
 ## 更新日志
@@ -131,7 +132,7 @@ project.afterEvaluate { Project p ->
 >      ...代码省略
 >      <application android.name="com.getui.sdk.GTApp">
 >      </application>
->    
+>       
 >    </manifest>
 >    ```
 >
@@ -141,16 +142,16 @@ project.afterEvaluate { Project p ->
 >
 >    ```java
 >    package xxx.xxx.xxx;
->      
+>         
 >    import android.app.Application;
 >    import android.content.Context;
->    
+>       
 >    import com.huawei.agconnect.config.AGConnectServicesConfig;
 >    import com.huawei.agconnect.config.LazyInputStream;
->    
+>       
 >    import java.io.IOException;
 >    import java.io.InputStream;
->    
+>       
 >    public class YourApplication extends Application {
 >        @Override
 >        protected void attachBaseContext(Context base) {
@@ -177,13 +178,17 @@ project.afterEvaluate { Project p ->
 >      ...代码省略
 >      <application android.name="xxx.xxx.xxx.YourApplication">
 >      </application>
->    
+>       
 >    </manifest>
 >    ```
 >
 >    
 
 ## 4. iOS 插件使用
+
+
+
+
 
 1、以下几个参数需要在个推开发者平台创建应用后获取并替换。
 
@@ -229,17 +234,25 @@ NSLog(@"\n>>>[DeviceToken Success]:%@\n\n", token);
 
 2、生成 iOS 工程，并打开该工程。
 
-Other linker Flags 添加 -Objc
+在Target=UnityFramework设置如下,  Other linker Flags 添加 -Objc
 
 添加必要的框架。
 
 * libc++.tbd
+
 * libz.tbd
+
 * libsqlite3.tbd
+
 * UserNotifications.framework
+
 * PushKit.framework
+
 * CallKit.framework
+
 * libresolv.tbd
+
+  
 
 > 注意：UserNotifications.framework 及 PushKit.framework 必须使用 optional 选项，如没有勾选改选项，iOS9 以下机型会因为没有这个库而闪退
 
